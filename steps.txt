@@ -1,0 +1,4 @@
+go mod init modulename // don't use spaces
+open your editor
+install go extension
+view -> command pallete -> go install (install everything)

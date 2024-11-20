@@ -1,0 +1,8 @@
+q1. Declare a variable to represent temperature in Celsius.
+Convert this temperature to Fahrenheit using the formula
+
+Use fmt.Printf instead of Println
+
+
+	log.New(os.Stdout)
+	l.Println("hello")

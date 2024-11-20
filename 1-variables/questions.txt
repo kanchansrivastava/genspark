@@ -18,3 +18,9 @@ q2. Create a program to store and print a person's and their project's details. 
     Team lead name (string)
     Project deadline in days (int)
     Additionally, demonstrate a uint overflow by initializing the largest possible value for uint and then adding 1 to it
+
+
+q3. Use log.New() and print a log message
+    use shortfile flag and stdFlags for flag argument (bit of Google required)
+// Hint:- first value to this function could be os.Stdout
+// Printing: l.Println("hello this is first log message")

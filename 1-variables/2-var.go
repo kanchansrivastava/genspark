@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 )
 
@@ -23,6 +24,8 @@ func main() {
 	//time.Second
 	//http.StatusNotFound
 
-	log.New(os.Stdout)
+	log.New(os.Stdout, log.LstdFlags)
 	l.Println("hello")
+
+	math.MaxUint8
 }

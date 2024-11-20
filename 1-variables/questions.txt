@@ -6,9 +6,6 @@ Use fmt.Printf instead of Println
 Use type casting in Go
 
 
-	log.New(os.Stdout)
-	l.Println("hello")
-
 q2. Create a program to store and print a person's and their project's details. Declare and initialize variables for the following details,
     Project name (string)
     Code lines written (uint8)

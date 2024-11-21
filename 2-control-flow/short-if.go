@@ -15,4 +15,15 @@ func main() {
 	// ignore the err value from the println function
 	// if no values are written return otherwise print the values
 
+	if n, _ := fmt.Println(); n == 1 {
+		fmt.Println("no values written")
+		return
+	} else {
+		fmt.Println("values written", n)
+	}
+
+	// any variable created inside if block would live until if block is not over
+	// after that, we cant access them
+	fmt.Println("end of main")
+
 }

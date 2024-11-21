@@ -34,6 +34,11 @@ q2.     second-proj-day-2/
 
     Note:- Q2 should not work, it should give some import cycle issues, it is intended
 
+    **How to solve the import cycle**
+    Extract the common piece of functionality in a separate package
+    Import the new package where functionality is needed
+    ****************************************************
+
 q3. create two files in the package main as shown below
 
      third-proj-day-2/
@@ -45,6 +50,9 @@ q3. create two files in the package main as shown below
         ├── go.mod
 
      ** Use go run to run this project **
+     To run the project
+     cd cmd
+     go run . or go run *.go
 
      setup.go and main.go both belong to package main
      Setup.go -> print some setup messages

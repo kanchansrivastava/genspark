@@ -12,5 +12,7 @@ func main() {
 
 	// use short if
 	// call the println func and check if it has written no values over the stdout
+	// ignore the err value from the println function
 	// if no values are written return otherwise print the values
+
 }

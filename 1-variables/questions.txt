@@ -26,3 +26,13 @@ q4. Print default values and Type names of variables from question 2 using print
 // Quick Tip, Use %v if not sure about what verb should be used,
 // but don't use it in this question :)
 // but generally using %v should be fine
+
+
+q5. {
+      "name": "Alice",
+      "age": 25
+    }
+
+    C:\Users\Alice\Documents\example.txt
+
+    Store above data in string

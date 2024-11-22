@@ -5,3 +5,4 @@ q1. Write a Go program that:
     Prints the total number of capacity changes at the end.
 
     Formula:= (currentCap-lastCap) / lastCap * 100
+    // Hint :- use type casting

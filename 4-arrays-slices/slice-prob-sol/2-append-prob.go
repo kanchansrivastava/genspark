@@ -5,7 +5,7 @@ import "genspark/slice"
 func main() {
 	x := []int{10, 20, 30, 40, 50, 60}
 
-	// cap of b calculation :- it starts from the 0 index of b till the end of the backing array, in this case 5 is cap
+	// cap of b calculation: - it starts from the 0 index of b till the end of the backing array, in this case 5 is cap
 	b := x[1:5]
 	slice.Inspect("b", b)
 

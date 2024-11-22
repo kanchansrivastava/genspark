@@ -22,7 +22,7 @@ func main() {
 		fmt.Println("values written", n)
 	}
 
-	// any variable created inside if block would live until if block is not over
+	// any variable created inside if block lives until if block is not over
 	// after that, we cant access them
 	fmt.Println("end of main")
 

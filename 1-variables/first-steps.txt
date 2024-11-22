@@ -1,5 +1,5 @@
 go mod init modulename // don't use spaces
-open your editor
+open Vscode
 install go extension
 view -> command pallete -> go install tools (install everything)
 

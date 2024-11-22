@@ -18,7 +18,7 @@ func main() {
 
 	some_pack.NotRecommended() // don't use _ in package names
 
-	// don't use util packages
+	// don't use util packages in naming
 	//ioutil.ReadFile()
 	//ioutil.ReadAll()
 	//os.ReadFile()

@@ -4,6 +4,7 @@ import "fmt"
 
 func main() {
 	jsonString := "{\n      \"name\": \"Alice\",\n      \"age\": 25\n    }"
+
 	// backtick creates a raw string, no processing happens inside a raw string
 	rawString := `{
       "name": "Alice",

@@ -13,6 +13,7 @@ func main() {
 
 	// in local functions use the below way (preferred way)
 	// when you have to assign the value directly
+	// shorthand operator
 	d := 100 // go compiler would infer the type automatically from the right side value
 	{
 		// don't do it, it can cause bugs

@@ -16,3 +16,5 @@ q1. Build a simple CLI calculator to get familiar with Go syntax and basic opera
                └── mod.go
                └── multiply.go
             ├── go.mod
+
+q2. Create a function that converts a string to float64, if it is successful it returns the value otherwise an error

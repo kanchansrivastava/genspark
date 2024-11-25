@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+// to run this program from command line.
+// go run greet.go Ajay 30 300
+
 func main() {
 	greet()
 }

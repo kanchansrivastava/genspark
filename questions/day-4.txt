@@ -18,3 +18,16 @@ q1. Build a simple CLI calculator to get familiar with Go syntax and basic opera
             ├── go.mod
 
 q2. Create a function that converts a string to float64, if it is successful it returns the value otherwise an error
+
+q3. Create a function named as StringManipulation.
+    StringManipulation accepts a function as an argument, and it returns string value
+    Possible Functions that it can accept:- trimSpace, toUpper, greet
+
+    Create 3 functions trimSpace, toUpper, greet
+    TrimSpace:- TrimSpace returns a string, with all leading and trailing white space removed, as defined by Unicode.
+    ToUpper:- ToUpper returns string with all Unicode letters mapped to their upper case.
+    Greet: - It takes a name as input, add hello as greeting and return the greeting
+    Hint: use strings package for TrimSpace and ToUpper functionalities
+
+
+q4. Modify the above function to perform the following actions

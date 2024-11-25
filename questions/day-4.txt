@@ -20,7 +20,7 @@ q1. Build a simple CLI calculator to get familiar with Go syntax and basic opera
 q2. Create a function that converts a string to float64, if it is successful it returns the value otherwise an error
 
 q3. Create a function named as StringManipulation.
-    StringManipulation accepts a function as an argument, and it returns string value
+    StringManipulation accepts a function and string type as an argument, and it returns string value
     Possible Functions that it can accept:- trimSpace, toUpper, greet
 
     Create 3 functions trimSpace, toUpper, greet

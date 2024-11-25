@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -24,14 +25,20 @@ func greet() {
 
 	name := data[0]
 	ageString := data[1]
-	//marksString := data[2]
+	marksString := data[2]
 
 	age, err := strconv.Atoi(ageString)
 	if err != nil {
 		log.Println("invalid age", err)
-
+		return
 	}
-	_, _ = age, name
-	//fmt.Println(name, age)
+
+	marks, err := strconv.Atoi(marksString)
+	if err != nil {
+		log.Println("invalid age", err)
+		return
+	}
+
+	fmt.Println(name, age, marks)
 	//strconv.ParseFloat()
 }

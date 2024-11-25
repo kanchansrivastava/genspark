@@ -3,8 +3,8 @@ q1. Build a simple CLI calculator to get familiar with Go syntax and basic opera
     Create a package calc
     Add functionalities of +, -, /, % (create these functionalities in 4 different files)
     In the main.go file ask user to provide operation to be performed and two values
-    E.g. + 10 20
     Note: User should pass these values from the command line.
+    E.g. + 10 20
     Handle errors in the code and give useful error messages to the end user.
 
             cli/

@@ -6,6 +6,8 @@ import "genspark/slice"
 func main() {
 	// len: number of elements your slice is storing,
 	// or number of elems slice is referring to in backing array
+
+	// cap: number of elems your slice can accommodate
 	i := []int{1, 2, 3, 4, 5}
 
 	slice.Inspect("i", i)

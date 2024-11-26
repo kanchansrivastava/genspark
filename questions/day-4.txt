@@ -30,4 +30,7 @@ q3. Create a function named as StringManipulation.
     Hint: use strings package for TrimSpace and ToUpper functionalities
 
 
-q4. Modify the above function to perform the following actions
+q4. Modify the above function to perform the following action
+    stringManipulation(trimSpace(), "\ngfdngbk \n"))
+    Instead of passing trimSpace you need to call the trimSpace function and make the program work
+    Hint: you need to return a function with the signature of what stringManipulation accepts as first parameter

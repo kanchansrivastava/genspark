@@ -11,6 +11,7 @@ func main() {
 	f := greet()
 
 	fmt.Println(f())
+
 }
 
 func greet() func() string {

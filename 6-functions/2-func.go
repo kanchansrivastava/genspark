@@ -23,7 +23,7 @@ func convStrToFloat64(val string) (float64, error) { // err must be the last val
 
 	flt, err := strconv.ParseFloat(val, 64)
 	if err != nil {
-		//log statement here // debug log,info
+		//log statement here not a good idea, repeated logs problem
 		return 0, err // whenever err happens set other values to default
 	}
 	// success case should be clearly visible

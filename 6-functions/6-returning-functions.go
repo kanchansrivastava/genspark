@@ -24,19 +24,32 @@ func main() {
 	log.Println("function name :  greetMe,  return value: ", stringManipulation(greetMe(), "Sandra"))
 }
 
+// Create a custom type for func(string) string,
 func stringManipulation(fn func(string) string, input string) string {
 	//log.Println("function name : ", fn, " return value: ", fn(input))
 	return fn(input)
 }
 
-func trimSpace(input string) string {
-	return strings.TrimSpace(input)
+// return custom type
+func trimSpace() func(string) string {
+	return func(input string) string {
+		return strings.TrimSpace(input)
+	}
+
 }
 
-func toUpper(input string) string {
-	return strings.ToUpper(input)
+// return custom type
+func toUpper() func(string) string {
+	return func(input string) string {
+		return strings.ToUpper(input)
+	}
+
 }
 
-func greetMe(input string) string {
-	return "Hello, " + input
+// return custom type
+func greetMe() func(string) string {
+	return func(input string) string {
+		return "Hello, " + input
+	}
+
 }

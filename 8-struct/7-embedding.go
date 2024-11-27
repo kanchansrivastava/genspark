@@ -10,6 +10,7 @@ type User struct {
 func (u *User) UpdateEmail(email string) {
 	u.email = email
 }
+
 func (u *User) Print() {
 	fmt.Println(u)
 }
@@ -41,6 +42,7 @@ func (a *Actor) Print() {
 func (a *Actor) AddMovie(movie string) {
 	a.movies = append(a.movies, movie)
 }
+
 func main() {
 
 	u := User{name: "Raj", email: "raj@email.com"}
@@ -57,8 +59,9 @@ func main() {
 
 	// using embedding, we can directly access methods of embedded struct
 	b.UpdateEmail("raj@gmail.com")
+	b.User.Print() // this is specifically accessing the method of User type
 
-	// u is a field of actore struct , we need to access it first to call the updateEmail method
+	// u is a field of actor struct , we need to access it first to call the updateEmail method
 	a.u.UpdateEmail("ajay@gmail.com")
 	b.Print()
 	a.Print()

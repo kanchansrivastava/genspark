@@ -73,7 +73,7 @@ func main() {
 	f := File{"test.txt"}
 	i := IO{"os.stdin"}
 
-	// we can pass file or io object to DoWork because both objects implement the interface
+	// we can pass a file or io object to DoWork because both objects implement the interface
 	DoWork(f)
 	DoWork(i)
 	//io.Reader()

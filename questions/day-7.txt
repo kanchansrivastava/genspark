@@ -36,7 +36,7 @@ q3. Create the following directory structure
     Create three methods over Conn struct (Create(user) error, Update(name) error, Delete(id) error
     //Note:- return nil for the errors, assume no error would happen
 
-    In postgres.go repeat the same steps like mysql.go
+    In postgres.go repeat the same steps as we did in mysql.go
 
     In store.go
         Create an interface that postgres and mysql package can implement

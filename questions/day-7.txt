@@ -19,6 +19,8 @@ q2. Define an interface named Notifier with two methods:
     SendSMS(): A method that takes a string argument representing the SMS content and returns a string indicating the SMS has been sent.
     Implement this interface in a struct called NotificationService.
 
+    Call SendEmail() & SendSMS() using interface variable
+
 q3. Create the following directory structure
             app-/
                 ├──stores/

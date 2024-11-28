@@ -13,3 +13,31 @@ q1. Creating and Using Structs in Go
 
         Hint: Use a pointer receiver in the 'Read' method to reflect changes on the original struct.
         */
+
+q2. Define an interface named Notifier with two methods:
+    SendEmail(): A method that takes a string argument representing the email content and returns a string indicating the email has been sent.
+    SendSMS(): A method that takes a string argument representing the SMS content and returns a string indicating the SMS has been sent.
+    Implement this interface in a struct called NotificationService.
+
+q3. Create the following directory structure
+            app-/
+                ├──stores/
+                │  └── store.go
+                │    ├── mysql/
+                │    │   └── mysql.go
+                │    ├── postgres/
+                │       └── postgres.go
+                └── main.go
+                ├── go.mod
+
+    In mysql.go create a Conn struct which stores db connection in string form
+    Create three methods over Conn struct (Create(user) error, Update(name) error, Delete(id) error
+    //Note:- return nil for the errors, assume no error would happen
+
+    In postgres.go repeat the same steps like mysql.go
+
+    In store.go
+        Create an interface that postgres and mysql package can implement
+
+    In main.go
+        Call postgres and mysql package methods using interface variable

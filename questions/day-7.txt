@@ -1,0 +1,11 @@
+q1. Creating and Using Structs in Go
+        /*
+        Todo:
+         - Define a struct 'Book' with fields 'Title', 'Author', and 'Pages'.
+         - Create a function 'Read' which takes a pointer to a Book, and a number of pages to read. After reading, the function should subtract the read pages from the total pages of the book.
+           Account for the case where the number of pages to read is more than the pages in the book. In that case, just set the book's pages to 0.
+         - In the main function, create a new book and initialize it with a title, author, and the number of pages.
+         - Then, read some pages from the book and print the title, author, and remaining pages.
+
+        Hint: Use a pointer receiver in the 'Read' method to reflect changes on the original struct.
+        */

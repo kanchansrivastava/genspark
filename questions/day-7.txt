@@ -25,6 +25,7 @@ q3. Create the following directory structure
             app-/
                 ├──stores/
                 │  └── store.go
+                   └── models.go // to store domain structs
                 │    ├── mysql/
                 │    │   └── mysql.go
                 │    ├── postgres/
@@ -35,6 +36,7 @@ q3. Create the following directory structure
     In mysql.go create a Conn struct which stores db connection in string form
     Create three methods over Conn struct (Create(user) error, Update(name) error, Delete(id) error
     //Note:- return nil for the errors, assume no error would happen
+    //For now add simple print statement without doing any actual work
 
     In postgres.go repeat the same steps as we did in mysql.go
 
@@ -43,3 +45,12 @@ q3. Create the following directory structure
 
     In main.go
         Call postgres and mysql package methods using interface variable
+
+
+q4. Create a map in postgres.go and mysql.go to store user details in the memory
+    Change the signature of methods (Create(user) bool, Update(name) bool, Delete(id) bool)
+    Note:- true would indicate operation has been successful.
+    Add two new methods FetchAll, FetchUser(id)
+    This time write concrete functionalities not simple print statements
+
+

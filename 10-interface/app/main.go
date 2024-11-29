@@ -8,6 +8,8 @@ import (
 	"fmt"
 )
 
+// Refer question q3 from day 7 and q1 from day8
+
 func main() {
 	//Call postgres and mysql package methods using interface variable
 	//var i stores.DataBase

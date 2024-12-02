@@ -22,8 +22,6 @@ func (c *conn) ReadAll() (string, bool) {
 	return "all values from the db", true
 }
 
-type customDb struct{}
-
 func main() {
 	// nil pointer:- it means it is not pointing to a memory address or storing reference of datatype
 	var c *conn = nil

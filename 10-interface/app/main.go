@@ -16,70 +16,41 @@ func main() {
 
 	u1 := models.User{Id: 1, Name: "sandra"}
 	u2 := models.User{Id: 2, Name: "komal"}
-	u3 := models.User{Id: 3, Name: "diwakar"}
 
 	m := mysql.NewConn()
 	i := stores.NewStore(m)
 
 	fmt.Printf("---------------- Printing type of interface %T ---------------------------------\n", i)
-	//printMapReturn(i.FetchAll())
 
-	printReturn(i.Create(u1))
+	u, ok := i.Create(u1)
+	if !ok {
+		fmt.Println("failed to create user")
+		return
+	}
+	fmt.Println("user created in mysql", u)
 
-	printReturn(i.FetchUser(1))
+	allUsers, ok := i.FetchAll()
+	if !ok {
+		fmt.Println("failed to fetch users from mysql")
+		return
+	}
+	fmt.Println("users fetched from mysql", allUsers)
 
-	printReturn(i.Update(1, "new me"))
-	printReturn(i.Delete(2))
-
-	printReturn(i.Create(u2))
-	printMapReturn(i.FetchAll())
-
-	printReturn(i.Delete(2))
-
-	printMapReturn(i.FetchAll())
 	p := postgress.NewConn()
 	i = stores.NewStore(p)
 
 	fmt.Printf("---------------- Printing type of interface %T ---------------------------------\n", i)
-	printMapReturn(i.FetchAll())
-
-	printReturn(i.Create(u1))
-
-	printReturn(i.FetchUser(1))
-
-	printReturn(i.Update(1, "new me"))
-	printReturn(i.Delete(2))
-
-	printReturn(i.Create(u2))
-	printMapReturn(i.FetchAll())
-
-	printReturn(i.Delete(2))
-
-	printReturn(i.Create(u3))
-
-	printMapReturn(i.FetchAll())
-
-}
-
-func printReturn(u *models.User, ok bool) {
+	u, ok = i.Create(u2)
 	if !ok {
-		fmt.Println("The command was not executed")
+		fmt.Println("failed to create user postgres")
+		return
 	}
-	if u == nil {
-		fmt.Println("u :", nil, " ok ", ok, "\n\n")
-	} else {
-		fmt.Println("u :", u, " ok ", ok, "\n\n")
-	}
+	fmt.Println("user created in postgres", u)
 
-}
-
-func printMapReturn(userDb map[int]*models.User, ok bool) {
+	allUsers, ok = i.FetchAll()
 	if !ok {
-		fmt.Println("The command was not executed")
+		fmt.Println("failed to fetch users from postgres")
+		return
 	}
-	for key, value := range userDb {
-		fmt.Println("Fetched values from db")
-		fmt.Printf("Key: %v\tValue: %v\n", key, value)
-	}
-
+	fmt.Println("users fetched from postgres", allUsers)
 }

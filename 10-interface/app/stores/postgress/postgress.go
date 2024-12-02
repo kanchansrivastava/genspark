@@ -6,21 +6,21 @@ import (
 )
 
 type Conn struct {
-	userDb map[int]*models.User
+	userDb map[int]models.User
 }
 
 func NewConn() *Conn {
-	NewCon := Conn{userDb: map[int]*models.User{}}
+	NewCon := Conn{userDb: map[int]models.User{}}
 	return &NewCon
 }
 
-func (c Conn) Create(u models.User) (*models.User, bool) {
+func (c Conn) Create(u models.User) (models.User, bool) {
 
 	fmt.Println("Creating a user in ", u, &u)
 	//Need to check if user exists if yes then throw error else save
-	c.userDb[u.Id] = &u
+	c.userDb[u.Id] = u
 
-	return &u, true
+	return u, true
 
 }
 
@@ -32,32 +32,32 @@ func (c Conn) Create(u models.User) (*models.User, bool) {
 // 	return nil
 // }
 
-func (c Conn) Update(id int, name string) (*models.User, bool) {
+func (c Conn) Update(id int, name string) (models.User, bool) {
 	u, ok := c.userDb[id]
 
 	if !ok {
 		fmt.Println("User with id ", id, "Is not found for update")
-		return nil, false
+		return models.User{}, false
 	}
 
 	u.Name = name
 	return u, true
 }
 
-func (c Conn) Delete(id int) (*models.User, bool) {
+func (c Conn) Delete(id int) bool {
 	u, ok := c.userDb[id]
 
 	if !ok {
 		fmt.Println("User with id ", id, "Is not found for delete")
-		return nil, false
+		return false
 	}
 	fmt.Println("deleting a user in ", " u : ", u)
 
 	delete(c.userDb, id)
-	return nil, true
+	return true
 }
 
-func (c Conn) FetchAll() (map[int]*models.User, bool) {
+func (c Conn) FetchAll() (map[int]models.User, bool) {
 	if c.userDb == nil {
 		fmt.Println("No value in db")
 		return nil, false
@@ -65,12 +65,12 @@ func (c Conn) FetchAll() (map[int]*models.User, bool) {
 	return c.userDb, true
 }
 
-func (c Conn) FetchUser(id int) (*models.User, bool) {
+func (c Conn) FetchUser(id int) (models.User, bool) {
 	u, ok := c.userDb[id]
 
 	if !ok {
 		fmt.Println("User with id ", id, "Is not found")
-		return nil, false
+		return models.User{}, false
 	}
 	return u, true
 }

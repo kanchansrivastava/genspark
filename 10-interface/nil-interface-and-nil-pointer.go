@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// ***** nil pointers and nil interface are not same in Go*******
+
 type DB interface {
 	ReadAll() (string, bool)
 }

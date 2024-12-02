@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 
+// when to use a pointer
 // https://go.dev/doc/faq#methods_on_values_or_pointers:~:text=Should%20I%20define%20methods%20on%20values%20or%20pointers%3F%C2%B6
 type author struct {
 	name string

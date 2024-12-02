@@ -1,15 +1,21 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 // go run fileName.go // to run your programs
 // GO is a statically compiled language
 var name string
+var u uint
 
 func main() {
 	var a int = 10
 	var b string = "ajay"
 	var c = "rahul"
+	var i = math.MaxInt
+	fmt.Println(i)
 
 	// in local functions use the below way (preferred way)
 	// when you have to assign the value directly

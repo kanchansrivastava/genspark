@@ -1,7 +1,8 @@
 q1. Create a function that converts string to an integer
     if any alphabets are passed, wrap strconv error and  error
-     ErrStringValue contain a message that value is of string type and return this error
+    ErrStringValue contain a message that value is of string type and return this error
     otherwise return the original error
 
     use the regex to check if value is of string type or not
     Hint: regexp.MatchString(`^[a-zA-Z]`, s)
+    fmt.Errorf("%w %w") // to wrap error

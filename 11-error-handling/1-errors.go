@@ -8,6 +8,8 @@ import (
 
 var user = make(map[int]string)
 
+// variable which would be used to store errors should start with word Err
+
 var ErrNotFound = errors.New("not found")
 
 func main() {

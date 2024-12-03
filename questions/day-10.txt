@@ -1,5 +1,5 @@
 
-q1.	create a program that manages a collection of books and number of books available
+q1.	create a program that manages a collection of books, and the number of books available
     allow users to search for books by title.
 	The program should handle errors gracefully if a book is not found or if there are any issues accessing the collection.
 

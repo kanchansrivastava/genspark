@@ -9,8 +9,8 @@ q1.	create a program that manages a collection of books and number of books avai
 	Implement
 		- AddBook(title string,counter int) error
 			-to add a new book to the collection.
-	FetchBook(id int) (string, error)
-		-to retrieve a book by its ID.
+	FetchBookCounter(name) (int, error)
+		-to retrieve a book by its name.
 	Error Handling:
 	Use a struct to handle error
 	User errors.As in main to check if struct is present inside the chain or not

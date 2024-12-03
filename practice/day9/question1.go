@@ -44,18 +44,15 @@ func StringToInt(s string) (int, error) {
 
 func main() {
 	result, err := StringToInt( "78xyz2")
-
 	if err != nil {
-		fmt.Printf("conversion failed: %v\n", err)
-	} else {
-		fmt.Printf("conversion succeeded: %d\n", result)
-	}
+		if errors.Is(err, ErrStringValue) {
+			fmt.Printf("string value passed: %w\n", err)
+			return
+		}  
+		
+		fmt.Printf("conversion failed: %w\n", err)	
+		return
+		}
+	fmt.Println("Result is", result)
 
-	result1, err1 := StringToInt( "123")
-	if err1 != nil {
-		fmt.Printf("conversion failed: %v\n", err1)
-	} else {
-		fmt.Printf("conversion succeeded: %d\n", result1)
 	}
-
-}

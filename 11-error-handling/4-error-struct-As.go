@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+// Error type should end with the word Error
+// Error types should not be used for any domain data
+
 type QueryError struct {
 	Func  string
 	Input string
@@ -15,6 +18,7 @@ type QueryError struct {
 
 // Error() method is implemented to implement error interface
 func (q *QueryError) Error() string {
+	// formatting the output string
 	return "main." + q.Func + ": " + "input " + q.Input + " " + q.Err.Error()
 }
 

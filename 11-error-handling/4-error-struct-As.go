@@ -13,11 +13,12 @@ type QueryError struct {
 	Err   error
 }
 
-var ErrNotFound = errors.New("not found")
-
+// Error() method is implemented to implement error interface
 func (q *QueryError) Error() string {
 	return "main." + q.Func + ": " + "input " + q.Input + " " + q.Err.Error()
 }
+
+var ErrNotFound = errors.New("not found")
 
 func SearchSomething(id int) (string, error) {
 	// assume that search code is written and we need to return an error
@@ -32,9 +33,10 @@ func main() {
 
 	user, err := SearchSomething(11)
 	if err != nil {
-		var qe *QueryError // nil
-		if errors.As(err, &qe) {
-			fmt.Println(qe.Func)
+		// creating a nil pointer to QueryError struct
+		var qe *QueryError       // nil
+		if errors.As(err, &qe) { // checking if struct was present in the chain, pass the reference to &qe
+			fmt.Println(qe.Func) // we can access individual fields if needed, or take some specific actions
 			fmt.Println(qe.Err)
 			fmt.Println(err)
 			return

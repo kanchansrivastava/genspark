@@ -1,0 +1,16 @@
+/*
+	create a program that manages a collection of books and number of books available
+    allow users to search for books by title.
+	The program should handle errors gracefully if a book is not found or if there are any issues accessing the collection.
+
+
+	Use a map to store book Name and their counter.
+	Functionality:
+	Implement
+		- AddBook(title string,counter int) error
+			-to add a new book to the collection.
+	FetchBook(id int) (string, error)
+		-to retrieve a book by its ID.
+	Error Handling:
+	Use a struct to handle error
+*/

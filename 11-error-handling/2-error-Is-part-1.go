@@ -14,6 +14,7 @@ func main() {
 		log.Println(err)
 		return
 	}
+
 	// trying to read file stats and printing the fileName
 	info, _ := f.Stat()
 	fmt.Println(info.Name())

@@ -9,6 +9,7 @@ import (
 
 func main() {
 	f, err := OpenFile("test.txt")
+
 	if err != nil {
 		log.Println(err)
 		return

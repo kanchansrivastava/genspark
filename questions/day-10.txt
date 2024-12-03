@@ -13,3 +13,4 @@ q1.	create a program that manages a collection of books and number of books avai
 		-to retrieve a book by its ID.
 	Error Handling:
 	Use a struct to handle error
+	User errors.As in main to check if struct is present inside the chain or not

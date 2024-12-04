@@ -4,7 +4,7 @@ import "fmt"
 
 func main() {
 	// var sInterface SquareInterface
-	// sInterface = &SquareImpl{}
+
 	//if we defer recoverPanic() here, the control does not reaches to end of function main when panic happens
 	var s *SquareImpl
 	defer recoverPanic()

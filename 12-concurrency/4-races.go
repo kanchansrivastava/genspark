@@ -8,6 +8,8 @@ import (
 // go run -race 4-races.go // run your program with race detector
 // it should be used in dev environment, not in production
 var x int = 1
+
+// create a data-race for the map and detect with race detector
 var user map[int]string
 
 func main() {

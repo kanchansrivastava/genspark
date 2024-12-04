@@ -32,7 +32,7 @@ func main() {
 
 	for i := 1; i <= 3; i++ {
 		wg.Add(1)
-		go work(i, wg)
+		go work(i, wg) // spinning 3 goroutines // each function call spins up a goroutine
 	}
 
 	wg.Wait()

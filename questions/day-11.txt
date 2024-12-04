@@ -15,7 +15,7 @@ q3. Create 4 functions
 
     CollectResult() -> It would receive the values from the channel and print it
 
-q4. Create a bookCab function that takes name of the user trying to book a cab
+q4. Create a bookCab function that takes the name of the user trying to book a cab
     Assume only one user can book a cab at a time
     Create a global variable to hold the number of cabs available
 

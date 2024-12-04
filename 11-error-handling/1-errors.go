@@ -34,4 +34,5 @@ func FetchRecord(id int) (string, error) {
 		return "", fmt.Errorf("user %d not found", id)
 	}
 	return name, nil
+
 }

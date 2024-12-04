@@ -21,5 +21,8 @@ q4. Create a bookCab function that takes the name of the user trying to book a c
 
     Check if a cab is available, if yes print a msg cab is available otherwise unavailable
 
+    In the main function, run a loop 5 times and call bookCab function as goroutine to simulate
+    multiple users are trying to book a cab
+
 
 

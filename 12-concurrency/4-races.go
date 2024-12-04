@@ -31,6 +31,15 @@ func updateX(val int, wg *sync.WaitGroup, m *sync.Mutex) {
 
 	// when a goroutine acquires a lock, another goroutine can't access the critical section
 	// until the lock is not released
+
+	//if we don't protect critical section with locks then data race can happen
+	//if any goroutine tries to write to the shared resource
+
+	// data race situations
+	//	- at least one concurrent write and n number of reads
+	//	- n number of concurrent writes
+	// 	- n number of concurrent writes and n number of concurrent reads
+	// 	Note - Data race doesn't happen if there are only concurrent reads
 	m.Lock()
 	defer m.Unlock() // releasing the lock
 	x = val

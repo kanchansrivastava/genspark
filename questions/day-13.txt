@@ -1,0 +1,4 @@
+q1. create a function work that takes a work id and print work {id} is going on
+    In the main function run a loop to run work function 10 times
+    make the work function call concurrent
+    Make sure your program waits for work function to finish gracefully

@@ -16,7 +16,6 @@ func main(){
 	var wg sync.WaitGroup
 	for i:=1;i<=10;i++ {
 		wg.Add(1)
-			// defer wg.Done()
 		go work1(i, &wg)
 	}
 	wg.Wait()
@@ -25,7 +24,10 @@ func main(){
 
 func work1(wordId int, wg *sync.WaitGroup) {
 	defer wg.Done()
+	
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		fmt.Println("anonymous goroutine started", wordId)
 		time.Sleep(100 * time.Millisecond) 
 		fmt.Println("anonymous goroutine finished", wordId)

@@ -16,10 +16,10 @@ func main() {
 		fmt.Println("sender picked up")
 		ch <- 1
 		// in our case sender would be picked up first , because recv is blocked by a sleep
-		// but when go sched try to run this routine, this would also block,
+		// but when go scheduler try to run this routine, this would also block,
 		// because there is no recv to send the values
 		// so this goroutine goes in the blocked state until recv is up
-		// once recv routine runs this routine would be unblocked and it will send the value and move on
+		// once recv routine runs this routine would be unblocked, and it will send the value and move on
 	}()
 	go func() {
 		defer wg.Done()

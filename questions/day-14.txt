@@ -12,11 +12,10 @@ q1.  Make a struct Theater with the following fields: Seats (int), RWMutex, user
      Call the bookSeats & printInvoice() method as a goroutine in the main function.
      For example:-
 
-     for i:=1; i<3; i++ {
+     for i:=1; i<=3; i++ {
           go t.bookSeats()
      }
-
      go t.printInvoice()
 
-      The program should quit gracefully without deadlock.
+     The program should quit gracefully without deadlock.
 

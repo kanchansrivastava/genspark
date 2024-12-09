@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-	"time"
 )
 
 var wg = new(sync.WaitGroup)
@@ -42,7 +41,7 @@ func (t *Theater) bookSeat(name string) {
 	if t.Seats > 0 {
 		// Simulate a seat booking-making process
 		fmt.Println("Seat is available for", name)
-		time.Sleep(2 * time.Second)
+		//time.Sleep(2 * time.Second)
 		fmt.Println("Booking confirmed", name)
 
 		t.Seats--         // Decrement available seats
@@ -73,7 +72,7 @@ func (t *Theater) printInvoice(done chan struct{}) {
 func main() {
 	// Create a new Theater
 	t := Theater{
-		Seats: 2, // With 1 seat
+		Seats: 1, // With 1 seat
 		// using unbuffered chan, if using buffered chan, don't use select for recv values from the channel
 		invoice: make(chan string), // Create the invoice channel //
 		rw:      sync.RWMutex{},
@@ -81,23 +80,23 @@ func main() {
 
 	done := make(chan struct{}) // Create a done channel for handling completion of seat bookings
 
-	// Start checkSeat routines
-	for i := 1; i <= 6; i++ {
-		wg.Add(1) // Increment wait group counter
-		go t.checkSeats()
-	}
+	//// Start checkSeat routines
+	//for i := 1; i <= 6; i++ {
+	//	wg.Add(1) // Increment wait group counter
+	//	go t.checkSeats()
+	//}
 
 	// Start bookSeat routines
-	for i := 1; i <= 3; i++ {
+	for i := 1; i <= 6; i++ {
 		wgBook.Add(1) // Increment wait group counter
 		go t.bookSeat("User " + strconv.Itoa(i))
 	}
 
-	// Start checkSeat routines
-	for i := 1; i <= 6; i++ {
-		wg.Add(1) // Increment wait group counter
-		go t.checkSeats()
-	}
+	//// Start checkSeat routines
+	//for i := 1; i <= 6; i++ {
+	//	wg.Add(1) // Increment wait group counter
+	//	go t.checkSeats()
+	//}
 
 	// When all bookings are completed, it signals the 'done' channel
 	go func() {

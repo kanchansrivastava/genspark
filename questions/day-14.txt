@@ -1,4 +1,4 @@
-q1.  Make a struct Theater with the following fields: Seats (int), RWMutex, userName chan string.
+q1.  Make a struct Theater with the following fields: Seats(int=1), RWMutex, userName chan string.
 
      Create two methods over a struct
 

@@ -1,0 +1,5 @@
+q1. Create a function that converts string to int
+    use time.Sleep to make this function slow
+    Pass context to this function with a certain timeout
+    If timeout happens this function should report an error back to main
+    If timeout didn't happen, this function should return the actual result of Atoi

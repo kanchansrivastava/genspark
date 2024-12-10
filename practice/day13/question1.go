@@ -24,7 +24,7 @@ import (
 
 type result struct {
 	url        string
-	statusCode int
+	resp *http.Response
 	err        error
 }
 
@@ -39,7 +39,7 @@ func main() {
 }
 
 func doGetRequest(urls []string) {
-	ch := make(chan result, 3)
+	ch := make(chan result)
 
 	wg := new(sync.WaitGroup)
 	wgWorker := new(sync.WaitGroup)
@@ -54,17 +54,7 @@ func doGetRequest(urls []string) {
 			go func(u string) {
 				defer wgWorker.Done()
 				res, err := http.Get(u)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				defer res.Body.Close()
-				_, err = io.ReadAll(res.Body)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				ch <- result{url: u, statusCode: res.StatusCode, err: err}
+				ch <- result{url: u, resp: res, err: err}
 			}(url)
 
 		}
@@ -73,19 +63,33 @@ func doGetRequest(urls []string) {
 		close(ch) // close the channel in the sender goroutine
 	}()
 
+	wg.Add(1)
 	go func() { // 2 goroutine
 
-		for res := range ch {
-			if res.err != nil {
-				fmt.Printf("Error fetching URL %s: *****%v\n", res.url, res.err)
+		defer wg.Done()
+
+		for response := range ch {
+			if response.err != nil {
+				fmt.Println(response.err)
+				continue 
+			}
+			defer response.resp.Body.Close()
+			_, err = io.ReadAll(response.resp.Body)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			if response.err != nil {
+				fmt.Printf("Error fetching URL %s: *****%v\n", response.url, response.err)
 				continue
 			}
 
-			if res.statusCode > 299 {
-				fmt.Printf("Status greater than 299 returned for URL %s and status is ***** %d\n", res.url, res.statusCode)
+			if response.resp.statusCode > 299 {
+				fmt.Printf("Status greater than 299 returned for URL %s and status is ***** %d\n", response.url, response.resp.statusCode)
 				continue
 			} else {
-				fmt.Printf("URL %s returned status: ***** %d\n", res.url, res.statusCode)
+				fmt.Printf("URL %s returned status: ***** %d\n", response.url, response.resp.statusCode)
 			}
 		}
 	}()

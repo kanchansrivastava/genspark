@@ -18,9 +18,9 @@ func main() {
 	defer cancel() // clean up the resources taken up by the context
 
 	doSomething(ctx, "John", wg)
-	fmt.Println("main function doing further work")
-	//time.Sleep(time.Second * 3)
-	fmt.Println("main function done")
+	//fmt.Println("main function doing further work")
+	////time.Sleep(time.Second * 3)
+	//fmt.Println("main function done")
 	wg.Wait()
 
 }
@@ -29,22 +29,35 @@ func main() {
 // ctx should not be part of the struct, but it should be passed to function as an argument
 func doSomething(ctx context.Context, name string, wg *sync.WaitGroup) {
 
-	ch := make(chan int, 1)
+	ch := make(chan int)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		x := slowFunction()
-		fmt.Println(x)
-		ch <- x
+		x := slowFunction(ctx)
+		fmt.Println("goroutine:", x)
+		select {
+		case ch <- x:
+			fmt.Println("goroutine: value sent to the channel")
+		case <-ctx.Done():
+			fmt.Println("goroutine: timeout happened, cant send value to channel")
+			fmt.Println(ctx.Err())
+			fmt.Println()
+			return
+		}
+		//ch <- x // this would deadlock if receiver is not available because this is unbuffered channel
 
 	}()
 
 	select {
+	// selecting over the channel
+	// if value is ready inside the channel ch, then we would receive the value
+	// if timer is over then ctx.Done case would execute
 	case v := <-ch:
-		fmt.Println("value received from slow function", v)
+		fmt.Println("doSomething: value received from slow function", v)
 	case <-ctx.Done():
-		fmt.Println(ctx.Err())
+		fmt.Println("doSomething: timeout happened", "can't receive value from slow function")
+		fmt.Println()
 		return
 	}
 
@@ -52,9 +65,19 @@ func doSomething(ctx context.Context, name string, wg *sync.WaitGroup) {
 
 }
 
-func slowFunction() int {
+func slowFunction(ctx context.Context) int {
 	time.Sleep(4 * time.Second)
-	fmt.Println("slow fn ran and add 100 records to db")
-	fmt.Println("receiver should process it")
-	return 42
+	fmt.Println("slowFunction: slow fn ran and add 100 records to db")
+	fmt.Println()
+	select {
+	case <-ctx.Done():
+		fmt.Println("slowFunction: timeout happened", "reversing the operation")
+		fmt.Println("slowFunction: rollback the operation")
+		fmt.Println()
+		return 0
+	default:
+		return 42
+
+	}
+
 }

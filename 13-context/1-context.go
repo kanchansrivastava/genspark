@@ -54,8 +54,10 @@ func doSomething(ctx context.Context, name string, wg *sync.WaitGroup) {
 	// if value is ready inside the channel ch, then we would receive the value
 	// if timer is over then ctx.Done case would execute
 	case v := <-ch:
+		// received value from the channel
 		fmt.Println("doSomething: value received from slow function", v)
 	case <-ctx.Done():
+		// timeout happened, no point of sending the value over the channel, receiver is not present
 		fmt.Println("doSomething: timeout happened", "can't receive value from slow function")
 		fmt.Println()
 		return
@@ -70,12 +72,17 @@ func slowFunction(ctx context.Context) int {
 	fmt.Println("slowFunction: slow fn ran and add 100 records to db")
 	fmt.Println()
 	select {
+	//checking if ctx timer was over
+	// if yes, then we would rollback the operation
 	case <-ctx.Done():
 		fmt.Println("slowFunction: timeout happened", "reversing the operation")
 		fmt.Println("slowFunction: rollback the operation")
 		fmt.Println()
 		return 0
 	default:
+		// default would be true if timeout didn't happen
+		// without a default the select would always block
+		// with default select default behaviour is changed to unblocking
 		return 42
 
 	}

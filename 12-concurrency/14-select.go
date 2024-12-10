@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"sync"
-	"time"
 )
+
+//******* Note:- This program has a bug*********///
 
 func main() {
 
@@ -12,9 +13,15 @@ func main() {
 	wg := new(sync.WaitGroup)
 
 	// select is used when we want to listen or send values to over a multiple channel
-	get := make(chan string)
-	post := make(chan string)
-	put := make(chan string)
+	// select should not be used with select if done channel pattern is being used,
+	// a lot of times it is possible that workers finished first and done channel is closed
+	// which would lead to quit the select early without receiving al the values
+
+	// Solution, spin individual goroutines to range over the different channel
+	// don't forget to close the channel where you are sending the values
+	get := make(chan string, 1)
+	post := make(chan string, 1)
+	put := make(chan string, 2)
 
 	// empty struct doesn't take any memory
 	done := make(chan struct{}) // datatype doesn't matter
@@ -23,12 +30,13 @@ func main() {
 	go func() {
 		defer wgWorker.Done()
 		get <- "get"
+		close(get)
 	}()
 
 	wgWorker.Add(1)
 	go func() {
 		defer wgWorker.Done()
-		time.Sleep(50 * time.Millisecond)
+		//time.Sleep(50 * time.Millisecond)
 		post <- "post"
 	}()
 
@@ -63,10 +71,17 @@ func main() {
 	//}
 
 	wg.Add(1)
+
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		//time.Sleep(5 * time.Second)
 		for {
 			select {
+
+			// whichever case is not blocking exec that first
+			//whichever case is ready first, exec that.
+			// possible cases are chan recv , send , default
 			case g := <-get:
 				fmt.Println(g)
 			case p := <-post:
@@ -81,7 +96,6 @@ func main() {
 		}
 	}()
 
-	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		wgWorker.Wait()

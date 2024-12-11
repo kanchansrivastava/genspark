@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+//Resources for file handling
+//https://www.honeybadger.io/blog/comprehensive-guide-to-file-operations-in-go/
+//https://www.devdungeon.com/content/working-files-go
+
 // struct fields must be exported, so json package can work on it
 type person struct {
 	FirstName    string          `json:"first_name"`    // json is a field level tag, used by the json package

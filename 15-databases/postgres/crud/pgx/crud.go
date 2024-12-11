@@ -1,0 +1,76 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"time"
+)
+
+//orm
+//https://gorm.io/docs/query.html
+
+// driver
+//https://github.com/jackc/pgx
+
+// whatever moduel we do go get is stored inside our gopath
+// go env GOPATH
+
+// go get moduleName (to get an external lib)
+// github.com/jackc/pgx/v5 (don't forget to include the version number if there is a major version in the module name)
+
+func CreateConnection() (*pgxpool.Pool, error) {
+
+	const (
+		host     = "localhost"
+		port     = "5433"
+		user     = "postgres"
+		password = "postgres"
+		dbname   = "postgres"
+	)
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	// ParseConfig takes the connection string to generate a config
+	config, err := pgxpool.ParseConfig(psqlInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	// MinConns is the minimum number of connections kept open by the pool.
+	// The pool will not proactively create this many connections, but once this many have been established,
+	// it will not close idle connections unless the total number exceeds MaxConns.
+	config.MinConns = 5
+	config.MaxConnLifetime = time.Hour
+	config.MaxConnIdleTime = 30 * time.Minute
+
+	// MaxConns is the maximum number of connections that can be opened to PostgreSQL.
+	// This limit can be used to prevent overwhelming the PostgreSQL server with too many concurrent connections.
+	config.MaxConns = 30
+
+	config.HealthCheckPeriod = 5 * time.Minute
+
+	db, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func Ping(db *pgxpool.Pool) {
+	err := db.Ping(context.Background())
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	db, err := CreateConnection()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	Ping(db)
+
+}

@@ -1,0 +1,2 @@
+q1. Create a table and insert one record in it using pgx package
+    Perform and update operation as well

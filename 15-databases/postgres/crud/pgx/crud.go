@@ -16,7 +16,7 @@ import (
 // driver
 //https://github.com/jackc/pgx
 
-// whatever moduel we do go get is stored inside our gopath
+// whatever module we download using go get, is stored inside our gopath
 // go env GOPATH
 
 // go get moduleName (to get an external lib)

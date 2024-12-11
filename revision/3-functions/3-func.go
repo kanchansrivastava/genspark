@@ -5,9 +5,6 @@ import (
 	"fmt"
 )
 
-type operation func(int, int) int
-type money int
-
 // alias
 
 func main() {

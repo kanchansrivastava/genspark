@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+//https://hub.docker.com/_/postgres
+
 //orm
 //https://gorm.io/docs/query.html
 
@@ -84,6 +86,8 @@ func main() {
 	Ping(db)
 
 	CreateTable(db)
+	id := insertUser(context.Background(), db, "John", "<EMAIL>", 25)
+	updateUserEmail(db, id, "john@example.com")
 
 }
 
@@ -100,6 +104,40 @@ func CreateTable(db *pgxpool.Pool) {
 		log.Fatal(err)
 	}
 	fmt.Printf("rows affected: %d\n", res.RowsAffected())
+
 }
 
 // Create two function one to insert one record and another to update the record
+
+// insertUser inserts a new user into the users table and returns the new user's ID.
+func insertUser(ctx context.Context, db *pgxpool.Pool, name, email string, age int) int {
+	// SQL query to insert a user and return the new user's ID
+	// don't hardcode the values, or use the string in construction, sql injection can happen
+	query := `INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING id`
+	var id int
+
+	// Execute the query to insert the user and get the new user's ID
+	//QueryRow returns one row as output
+	err := db.QueryRow(ctx, query, name, email, age).Scan(&id)
+	if err != nil {
+		log.Fatalf("Unable to insert user: %v\n", err) // Log and terminate if user insertion fails
+	}
+	fmt.Println("User inserted with id", id)
+	return id // Return the new user's ID
+}
+
+// updateUserEmail updates a user's email based on their ID.
+func updateUserEmail(db *pgxpool.Pool, userID int, newEmail string) {
+	// SQL query to update a user's email
+	query := `UPDATE users SET email = $1 WHERE id = $2`
+
+	// prone to SQL injection, we should not construct queries using strings
+	//query := fmt.Sprintf("SELECT * FROM users WHERE username = '%s'", "userInput")
+
+	// Execute the query to update the user's email
+	_, err := db.Exec(context.Background(), query, newEmail, userID)
+	if err != nil {
+		log.Fatalf("Unable to update user: %v\n", err) // Log and terminate if update fails
+	}
+	fmt.Println("User email updated")
+}

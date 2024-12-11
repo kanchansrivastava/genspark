@@ -146,10 +146,49 @@ func updateUserEmail(db *pgxpool.Pool, userID int, newEmail string) {
 	fmt.Println("User email updated")
 }
 
-func getAllUsers(db *pgxpool.Pool) {
+func getAllUsers(ctx context.Context, db *pgxpool.Pool) {
 	// user query method
 	// run a for loop on rows.Next()
 	// inside the loop scan values using rows.Scan
 	// print things inside the loop
 
+	// SQL query to retrieve all users
+	query := `SELECT id, name, email, age FROM users`
+
+	// Execute the query to retrieve all users
+	rows, err := db.Query(ctx, query)
+	if err != nil {
+		log.Fatalf("Unable to query users: %v\n", err) // Log and terminate if query fails
+	}
+	defer rows.Close() // Ensure the rows are closed when done
+
+	fmt.Println("Users:")
+
+	// this loop would run until there are rows to scan
+	for rows.Next() {
+		var id, age int
+		var name, email string
+
+		// Scan each row into variables
+		err := rows.Scan(&id, &name, &email, &age)
+		if err != nil {
+			log.Printf("Unable to scan row: %v\n", err) // Log
+			continue
+		}
+		fmt.Printf("ID: %d, Name: %s, Email: %s, Age: %d\n", id, name, email, age) // Print user details
+	}
+
+}
+
+// deleteUser deletes a user from the users table based on their ID.
+func deleteUser(ctx context.Context, userID int, db *pgxpool.Pool) {
+	// SQL query to delete a user by ID
+	query := `DELETE FROM users WHERE id = $1`
+
+	// Execute the query to delete the user
+	_, err := db.Exec(ctx, query, userID)
+	if err != nil {
+		log.Fatalf("Unable to delete user: %v\n", err) // Log and terminate if deletion fails
+	}
+	fmt.Println("User deleted")
 }

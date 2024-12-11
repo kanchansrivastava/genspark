@@ -27,7 +27,6 @@ func StringManipulation1(myop func(string) string, str string) string{
 	return result
 }
 
-
 func trimSpaceV1() func(string) string{
 	return func(str string) string {
 		return  strings.TrimSpace(str)

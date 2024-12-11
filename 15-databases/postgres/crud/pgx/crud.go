@@ -86,8 +86,12 @@ func main() {
 	Ping(db)
 
 	CreateTable(db)
-	id := insertUser(context.Background(), db, "John", "<EMAIL>", 25)
-	updateUserEmail(db, id, "john@example.com")
+	//id := insertUser(context.Background(), db, "John", "<EMAIL>", 25)
+	//updateUserEmail(db, id, "john@example.com")
+	id := insertUser(context.Background(), db, "Jane", "<EMAIL>", 24)
+	updateUserEmail(db, id, "jane@example.com")
+	id = insertUser(context.Background(), db, "Jill", "<EMAIL>", 23)
+	updateUserEmail(db, id, "jill@example.com")
 
 }
 
@@ -140,4 +144,12 @@ func updateUserEmail(db *pgxpool.Pool, userID int, newEmail string) {
 		log.Fatalf("Unable to update user: %v\n", err) // Log and terminate if update fails
 	}
 	fmt.Println("User email updated")
+}
+
+func getAllUsers(db *pgxpool.Pool) {
+	// user query method
+	// run a for loop on rows.Next()
+	// inside the loop scan values using rows.Scan
+	// print things inside the loop
+
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"log"
 	"time"
 )
 
@@ -18,6 +19,9 @@ import (
 
 // go get moduleName (to get an external lib)
 // github.com/jackc/pgx/v5 (don't forget to include the version number if there is a major version in the module name)
+
+// automatically resolves all the dependecies required for the project
+// go mod tidy // first command to run when importing any project
 
 func CreateConnection() (*pgxpool.Pool, error) {
 
@@ -59,11 +63,17 @@ func CreateConnection() (*pgxpool.Pool, error) {
 }
 
 func Ping(db *pgxpool.Pool) {
+	// pinging the connection if it is alive or not
 	err := db.Ping(context.Background())
 	if err != nil {
 		panic(err)
 	}
 }
+
+// Three methods to execute queries on the database
+// Exec -> when query does not return anything
+// QueryRow -> returns exactly one row
+// Query -> returns many rows
 
 func main() {
 	db, err := CreateConnection()
@@ -73,4 +83,23 @@ func main() {
 	defer db.Close()
 	Ping(db)
 
+	CreateTable(db)
+
 }
+
+func CreateTable(db *pgxpool.Pool) {
+	query := `
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100),
+        email VARCHAR(100) UNIQUE NOT NULL,
+        age INT
+    );`
+	res, err := db.Exec(context.Background(), query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("rows affected: %d\n", res.RowsAffected())
+}
+
+// Create two function one to insert one record and another to update the record

@@ -1,4 +1,3 @@
-
 // q2.     second-proj-day-2/
 //         ├── main.go
 //         ├── go.mod
@@ -31,6 +30,8 @@
 //     		Extract the common piece of functionality in a separate package
 //     		Import the new package where functionality is needed
 //     ****************************************************
+
+// leave the import cycle so that it is clear what shpuld not be done
 
 package main
 

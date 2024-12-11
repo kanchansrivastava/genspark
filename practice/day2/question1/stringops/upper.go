@@ -1,5 +1,8 @@
 package stringops
 
-func toUpperCase(s string){
+import "strings"
 
+func toUpperCase(s string) string{
+	result := strings.ToUpper(s)
+	return result
 }

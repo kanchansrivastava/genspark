@@ -1,5 +1,8 @@
 package stringops
 
-func reverseString(s string) {
-	
+import "strings"
+
+func reverseString(s string) string{
+	//trim
+	return strings.Trim(s, " ") 
 }

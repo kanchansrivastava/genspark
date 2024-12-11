@@ -17,6 +17,14 @@ func main() {
 
 	i = append(i, 7)
 	slice.Inspect("i", i)
+
+	i = append(i, 7)
+	i = append(i, 7)
+	i = append(i, 7)
+	slice.Inspect("i", i)
+
+	i = append(i, 7)
+	slice.Inspect("i", i)
 }
 
 // https://go.dev/ref/spec#Appending_and_copying_slices

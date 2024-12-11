@@ -1,10 +1,11 @@
 Arrays—Too Rigid to Use Directly
-Like most programming languages, Go has arrays. However, arrays are rarely used directly in Go. You’ll learn why in a bit, but first let’s quickly cover array declaration syntax and use.
+Like most programming languages, Go has arrays. However, arrays are rarely used directly in Go. 
+You’ll learn why in a bit, but first let’s quickly cover array declaration syntax and use.
 
-All of the elements in the array must be of the type that’s specified. There are a few different declaration styles. In the first, you specify the size of the array and the type of the elements in the array:
+All of the elements in the array must be of the type that’s specified. There are a few different 
+declaration styles. In the first, you specify the size of the array and the type of the elements in the array:
 
-var x [3]int
-This creates an array of three ints. Since no values were specified, all of the elements (x[0], x[1], and x[2]) are initialized to the zero value for an int, which is (of course) 0. If you have initial values for the array, you specify them with an array literal:
+var x [3]int This creates an array of three ints. Since no values were specified, all of the elements (x[0], x[1], and x[2]) are initialized to the zero value for an int, which is (of course) 0. If you have initial values for the array, you specify them with an array literal:
 
 var x = [3]int{10, 20, 30}
 If you have a sparse array (an array where most elements are set to their zero value), you can specify only the indices with values in the array literal:

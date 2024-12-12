@@ -40,6 +40,9 @@ func main() {
 		panic(err)
 	}
 
+}
+
+func UpdateAuthor() {
 	//BeginTx would start the transaction
 	tx, err := DB.BeginTx(context.Background(), nil)
 	if err != nil {
@@ -79,5 +82,4 @@ func main() {
 		log.Println(err)
 		return
 	}
-
 }

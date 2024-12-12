@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"log"
 	"time"
 )
@@ -37,7 +38,7 @@ func NewDB(collection string) (*DB, error) {
 	defer cancel()
 
 	// Connect to MongoDB using the provided context and options
-	client, err := mongo.Connect(ctx, clientOptions)
+	client, err := mongo.Connect(clientOptions)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
@@ -98,6 +99,7 @@ func (db *DB) InsertOne(ctx context.Context) {
 		log.Println(err)
 		return
 	}
+	//db.coll.InsertMany()
 
 	//inserted id
 	fmt.Println(res.InsertedID)
@@ -106,3 +108,93 @@ func (db *DB) InsertOne(ctx context.Context) {
 // create a function the inserts multiple users record in one go
 
 //InsertMany
+
+// Get retrieves a single document based on a filter
+func (db *DB) Get() {
+	var person Person
+	ctx := context.Background()
+	//
+	filter := bson.D{{"first_name", bson.D{{"$eq", "John"}}}}
+	//filter := bson.D{
+	//   {"$and",
+	//      bson.A{
+	//         bson.D{{"marks", bson.D{{"$gt", 7}}}},
+	//         bson.D{{"age", bson.D{{"$lte", 30}}}},
+	//      },
+	//   },
+	//}
+	//filter := bson.D{{"first_name", "John"}}
+
+	err := db.coll.FindOne(ctx, filter).Decode(&person)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Printf("Found a single document: %+v\n", person)
+}
+
+// FindAll retrieves all documents
+func (db *DB) FindAll() {
+	var results []Person
+	ctx := context.Background()
+
+	// get everything
+	// or specify a specific condition in bson.D{}
+	filter := bson.D{}
+	cur, err := db.coll.Find(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var person Person
+		err := cur.Decode(&person)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		results = append(results, person)
+	}
+
+	if err := cur.Err(); err != nil {
+		log.Println(err)
+		return
+	}
+	for _, v := range results {
+		fmt.Printf("%+v\n\n", v)
+	}
+	//fmt.Println("Found multiple documents: ", results)
+}
+
+// Update modifies a single document based on a filter
+func (db *DB) Update() {
+	filter := bson.D{{"email", "john@email.com"}}
+	update := bson.D{
+		{"$set", bson.D{
+			{"age", 32},
+		}},
+	}
+
+	ctx := context.Background()
+	res, err := db.coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Printf("Matched %v documents and updated %v documents.\n", res.MatchedCount, res.ModifiedCount)
+}
+
+// Delete removes a single document based on a filter
+func (db *DB) Delete() {
+	filter := bson.D{{"email", "john2@email.com"}}
+
+	ctx := context.Background()
+	res, err := db.coll.DeleteOne(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Printf("Deleted %v document(s)\n", res.DeletedCount)
+}

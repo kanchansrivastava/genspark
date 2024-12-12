@@ -22,7 +22,7 @@ import (
 // go get moduleName (to get an external lib)
 // github.com/jackc/pgx/v5 (don't forget to include the version number if there is a major version in the module name)
 
-// automatically resolves all the dependecies required for the project
+// automatically resolves all the dependencies required for the project
 // go mod tidy // first command to run when importing any project
 
 func CreateConnection() (*pgxpool.Pool, error) {

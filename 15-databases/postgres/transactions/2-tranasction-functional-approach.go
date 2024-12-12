@@ -44,6 +44,9 @@ func main() {
 }
 
 func Update() error {
+
+	// wrapping our queries inside the func that takes tx as param
+	// we can pass this func to withTx
 	f := func(tx *sql.Tx) error {
 		updateQuery := `UPDATE author
 					SET name = $1
@@ -69,11 +72,17 @@ func Update() error {
 	return nil
 }
 
+// withTx func takes a context, and a function that want exec within a transaction
 func withTx(ctx context.Context, fn func(*sql.Tx) error) error {
 
+	// begin a transaction
 	tx, err := DB.BeginTx(ctx, nil)
-	err = fn(tx)
+
+	// call the function passed to withTX,
+	// passing the newly created transaction
+	err = fn(tx) // func would use tx to run queries within transaction
 	if err != nil {
+		// rollback in case if any error happens
 		er := tx.Rollback()
 		if er != nil {
 			return fmt.Errorf("rollback error: %w", err)
@@ -81,6 +90,7 @@ func withTx(ctx context.Context, fn func(*sql.Tx) error) error {
 		return fmt.Errorf("transaction error: %w", err)
 	}
 
+	// commit if no error
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("commit error: %w", err)

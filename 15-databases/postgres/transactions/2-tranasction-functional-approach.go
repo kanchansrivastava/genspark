@@ -29,6 +29,8 @@ func init() {
 
 }
 
+// insert two more records within transaction
+
 func main() {
 	err := DB.Ping()
 	if err != nil {

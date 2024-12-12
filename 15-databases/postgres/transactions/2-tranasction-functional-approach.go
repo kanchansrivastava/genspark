@@ -74,7 +74,7 @@ func Update() error {
 	return nil
 }
 
-// withTx func takes a context, and a function that want exec within a transaction
+// withTx func takes a context, and a function that want to exec within a transaction
 func withTx(ctx context.Context, fn func(*sql.Tx) error) error {
 
 	// begin a transaction

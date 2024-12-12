@@ -11,12 +11,14 @@ import (
 
 //https://www.mongodb.com/docs/drivers/go/current/fundamentals/crud/read-operations/query-document/
 
+// DB struct is used to store MongoDB client, a reference to a database, and a collection.
 type DB struct {
 	client   *mongo.Client
 	database *mongo.Database
 	coll     *mongo.Collection
 }
 
+// Person struct represents the schema of a document in the MongoDB collection.
 type Person struct {
 	FirstName string   `bson:"first_name"`
 	Email     string   `bson:"email"`
@@ -25,11 +27,16 @@ type Person struct {
 	Hobbies   []string `bson:"hobbies"`
 }
 
+// NewDB function initializes a connection to MongoDB, sets up the database and collection.
 func NewDB(collection string) (*DB, error) {
 	const uri = "mongodb://root:example@localhost:27017"
+	//Create client options and set the connection URI
 	clientOptions := options.Client().ApplyURI(uri)
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+
+	// Connect to MongoDB using the provided context and options
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
@@ -37,11 +44,11 @@ func NewDB(collection string) (*DB, error) {
 	database := client.Database("info")
 	fmt.Printf("%+v\n", database)
 	if database == nil {
-		return nil, fmt.Errorf("failed to create DB: %w", err)
+		return nil, fmt.Errorf("failed to get DB: %w", err)
 	}
 	coll := database.Collection(collection)
 	if coll == nil {
-		return nil, fmt.Errorf("failed to create collection: %w", err)
+		return nil, fmt.Errorf("failed to get collection: %w", err)
 	}
 
 	return &DB{
@@ -51,6 +58,7 @@ func NewDB(collection string) (*DB, error) {
 	}, nil
 }
 
+// Ping method is used to test if the MongoDB client can communicate with the database.
 func (db *DB) Ping(ctx context.Context) error {
 	return db.client.Ping(ctx, nil)
 }
@@ -74,6 +82,7 @@ func main() {
 
 }
 
+// InsertOne method inserts a single document into the MongoDB collection
 func (db *DB) InsertOne(ctx context.Context) {
 	u := Person{
 		FirstName: "John",
@@ -83,11 +92,14 @@ func (db *DB) InsertOne(ctx context.Context) {
 		Marks:     50,
 	}
 
+	// Insert the document into the collection
 	res, err := db.coll.InsertOne(ctx, u)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	//inserted id
 	fmt.Println(res.InsertedID)
 }
 

@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// https://stackoverflow.com/questions/129329/optimistic-vs-pessimistic-locking/129397#129397
+
 var DB *sql.DB
 
 func init() {
@@ -38,6 +40,7 @@ func main() {
 	defer tx.Rollback()
 
 	var id, version int
+	// grabbing the version number as well with the id
 	err = tx.QueryRow(`SELECT id, version FROM students WHERE id = $1`, 1).
 		Scan(&id, &version)
 
@@ -50,6 +53,9 @@ func main() {
 
 	newName := "ABC"
 	var updatedAt time.Time
+
+	// in this query we check if version number is changed from last select then
+	// this update would not work due to & condition in the where clause
 	err = tx.QueryRow(`
 		UPDATE students
 		SET name = $1, updated_at = $2, version = version + 1
@@ -60,6 +66,8 @@ func main() {
 		log.Println(err)
 		return
 	}
+
+	// if no problem, we will commit the transaction
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)

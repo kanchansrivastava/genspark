@@ -36,13 +36,22 @@ func init() {
 func main() {
 	err := DB.Ping()
 	if err != nil {
+		// if db is not connected, no point to continue
 		panic(err)
 	}
+
+}
+
+func UpdateAuthor() {
+	//BeginTx would start the transaction
 	tx, err := DB.BeginTx(context.Background(), nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	// calling rollback multiple times have no effect after commit
+	// rollback would roll back any changes if function return early without commit
 	defer func() {
 		err := tx.Rollback()
 		if err != nil {
@@ -66,10 +75,11 @@ func main() {
 		return
 	}
 
+	// only if both transaction finishes then only we would commit
+	// All or None concept
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
 }

@@ -1,0 +1,3 @@
+q1. Create a handler which accepts any kind of json and prints it
+    check if client is still connected or not
+    if client is connected then return json processed otherwise just move on

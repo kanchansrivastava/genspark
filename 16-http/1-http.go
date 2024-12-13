@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// curl localhost:8084/find
 func main() {
 	// start up the server
 	// this lines block forever
@@ -45,14 +46,29 @@ func FetchUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Name = "John"
-	user.Password = "<PASSWORD>"
-	user.PasswordHash = "<HASH>"
+	user.Password = "abc"
+	user.PasswordHash = "passwordHash"
 	user.Marks = []int{10, 20, 30}
 
 	// NewEncoder can directly write JSON to the writer
 	// Encode would convert struct/map to JSON
+	if user.PasswordHash == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Unauthorized"))
+		return
+	}
 
-	w.WriteHeader(http.StatusOK)
+	select {
+	case <-r.Context().Done():
+		fmt.Println(r.Context().Err())
+		fmt.Println("Request cancelled")
+		// just in case you want to undo things, you can
+		return
+	default:
+		// default is always true ,if no other case are true
+		// client is still connected, so lets move on further
+	}
+	//w.WriteHeader(http.StatusOK)
 	err := json.NewEncoder(w).Encode(user)
 	if err != nil {
 		log.Println(err)

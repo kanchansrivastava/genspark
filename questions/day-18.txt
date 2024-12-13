@@ -7,3 +7,6 @@ q1. Create a handler which accepts any kind of json and prints it
     type assertion needs to be done every time
 
     TO find the JSON what user has sent, you can use r.Body
+
+q2. Create a middleware which logs request url, request method and time to complete the request
+    Hint: time package can help

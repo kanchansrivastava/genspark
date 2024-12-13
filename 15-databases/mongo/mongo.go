@@ -34,9 +34,6 @@ func NewDB(collection string) (*DB, error) {
 	//Create client options and set the connection URI
 	clientOptions := options.Client().ApplyURI(uri)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
 	// Connect to MongoDB using the provided context and options
 	client, err := mongo.Connect(clientOptions)
 	if err != nil {

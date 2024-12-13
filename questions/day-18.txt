@@ -6,3 +6,4 @@ q1. Create a handler which accepts any kind of json and prints it
     The any type has a tradeoff as well, you can't access the fields directly,
     type assertion needs to be done every time
 
+    TO find the json what user have sent, you can use r.Body

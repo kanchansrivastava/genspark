@@ -1,3 +1,9 @@
 q1. Create a handler which accepts any kind of json and prints it
     check if client is still connected or not
     if client is connected then return json processed otherwise just move on
+
+    Hint: use map[string]any if not sure about json structure
+    The any type has a tradeoff as well, you can't access the fields directly,
+    type assertion needs to be done every time
+
+    TO find the json what user have sent, you can use r.Body

@@ -16,6 +16,12 @@ func main() {
 
 }
 
+// fetch the requestId and log on terminal reqId: hello username
+// return hello username to the client
+
+func HelloHandler(w http.ResponseWriter, r *http.Request) {
+
+}
 func ReqIdMid(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

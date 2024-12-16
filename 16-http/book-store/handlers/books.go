@@ -82,17 +82,6 @@ func (h *Handler) UpdateBookByID(c *gin.Context) {
 		return
 	}
 
-	err = h.validate.Struct(updateBook)
-	if err != nil {
-		slog.Error(
-			"Validation failed",
-			slog.String("TRACE ID", traceId),
-			slog.String("Error", err.Error()),
-		)
-		c.AbortWithStatusJSON(400, gin.H{"error": "please provide values in correct format"})
-		return
-	}
-
 	updatedBook, err := h.c.Update(c.Request.Context(), id, updateBook)
 	if err != nil {
 		slog.Error(

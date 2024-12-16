@@ -21,11 +21,22 @@ type NewBook struct {
 	Stock       int     `json:"stock" validate:"required,gt=0"`                 // Stock is required and must be greater than 0
 }
 
+//
+//type UpdateBook struct {
+//	Title       *string  `json:"title"`       // Title of the book
+//	AuthorName  *string  `json:"author_name"` // Author name
+//	Description *string  `json:"description"` // Description
+//	Category    *string  `json:"category"`    // Book category
+//	Price       *float64 `json:"price"`       // Book price, must be >= 0
+//	Stock       *int     `json:"stock"`       // Number of copies in stock, must be >= 0
+//}
+//
+
 type UpdateBook struct {
-	Title       *string  `json:"title"`       // Title of the book
-	AuthorName  *string  `json:"author_name"` // Author name
-	Description *string  `json:"description"` // Description
-	Category    *string  `json:"category"`    // Book category
-	Price       *float64 `json:"price"`       // Book price, must be >= 0
-	Stock       *int     `json:"stock"`       // Number of copies in stock, must be >= 0
+	Title       *string  `json:"title,omitempty"`       // Title of the book
+	AuthorName  *string  `json:"author_name,omitempty"` // Author name
+	Description *string  `json:"description,omitempty"` // Description
+	Category    *string  `json:"category,omitempty"`    // Book category
+	Price       *float64 `json:"price,omitempty"`       // Book price, must be >= 0
+	Stock       *int     `json:"stock,omitempty"`       // Number of copies in stock, must be >= 0
 }

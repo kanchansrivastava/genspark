@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"time"
@@ -122,27 +123,35 @@ func (c *Conn) Update(ctx context.Context, id int, updateBook UpdateBook) (Book,
 	if err != nil {
 		return Book{}, fmt.Errorf("unable to fetch book: %w", err)
 	}
-	if updateBook.AuthorName != nil {
-		book.AuthorName = *updateBook.AuthorName
+	data, err := json.Marshal(updateBook)
+	if err != nil {
+		return Book{}, fmt.Errorf("unable to marshal book: %w", err)
 	}
-	if updateBook.Stock != nil {
-		book.Stock = *updateBook.Stock
+	err = json.Unmarshal(data, &book)
+	if err != nil {
+		return Book{}, fmt.Errorf("unable to unmarshal book: %w", err)
 	}
-	if updateBook.Title != nil {
-		book.Title = *updateBook.Title
-	}
-	if updateBook.AuthorName != nil {
-		book.AuthorName = *updateBook.AuthorName
-	}
-	if updateBook.Description != nil {
-		book.Description = *updateBook.Description
-	}
-	if updateBook.Category != nil {
-		book.Category = *updateBook.Category
-	}
-	if updateBook.Price != nil {
-		book.Price = *updateBook.Price
-	}
+	//if updateBook.AuthorName != nil {
+	//	book.AuthorName = *updateBook.AuthorName
+	//}
+	//if updateBook.Stock != nil {
+	//	book.Stock = *updateBook.Stock
+	//}
+	//if updateBook.Title != nil {
+	//	book.Title = *updateBook.Title
+	//}
+	//if updateBook.AuthorName != nil {
+	//	book.AuthorName = *updateBook.AuthorName
+	//}
+	//if updateBook.Description != nil {
+	//	book.Description = *updateBook.Description
+	//}
+	//if updateBook.Category != nil {
+	//	book.Category = *updateBook.Category
+	//}
+	//if updateBook.Price != nil {
+	//	book.Price = *updateBook.Price
+	//}
 
 	query := `
 		UPDATE books

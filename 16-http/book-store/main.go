@@ -5,6 +5,7 @@ import (
 	"book-store/models"
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,7 +14,7 @@ import (
 )
 
 func main() {
-
+	setupLog()
 	//////////////////////
 	//Starting DB
 	/////////////////////
@@ -68,4 +69,14 @@ func main() {
 
 	}
 
+}
+func setupLog() {
+	//creating a new configuration for structured log
+	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true, // it would enable file name and line number logging
+	})
+	logger := slog.New(logHandler)
+
+	// setting the new structured logger as default when someone try to write logs using slog
+	slog.SetDefault(logger)
 }

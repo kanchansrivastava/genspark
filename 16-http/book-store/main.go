@@ -21,17 +21,26 @@ func main() {
 		IdleTimeout:       time.Second * 200,
 		Handler:           handlers.SetupGINRoutes(),
 	}
+
+	// Channel to listen for OS signals (like SIGTERM, SIGINT) for graceful shutdown
 	shutdown := make(chan os.Signal, 1)
+
+	// Register the shutdown channel to receive specific system interrupt signals
 	signal.Notify(shutdown, os.Interrupt, os.Kill, syscall.SIGTERM)
+
+	// Channel to capture server errors during runtime, like port already being used
 	serverError := make(chan error)
 
+	// Goroutine to handle server startup and listen for incoming requests
 	go func() {
 		serverError <- api.ListenAndServe()
 	}()
 
+	// select statement to handle either server errors or shutdown signals
 	select {
 	// this error would happen if the service is not able to start
 	case err := <-serverError:
+		// Panic if the server fails to start
 		panic(err)
 	case <-shutdown:
 		fmt.Println("Graceful Shutdown Server...")

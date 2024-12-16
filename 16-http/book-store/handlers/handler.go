@@ -25,5 +25,6 @@ func SetupGINRoutes(c *models.Conn) *gin.Engine {
 	h := NewConf(c, validator.New())
 	r.GET("/ping", h.Ping)
 	r.POST("/create", h.CreateBook)
+	r.PATCH("/update/:book_id", h.UpdateBookByID)
 	return r
 }

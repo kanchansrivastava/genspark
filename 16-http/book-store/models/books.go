@@ -88,3 +88,80 @@ func (c *Conn) InsertBook(ctx context.Context, newBook NewBook) (Book, error) {
 	return b, nil
 
 }
+
+func (c *Conn) Update(ctx context.Context, id int, updateBook UpdateBook) (Book, error) {
+
+	// Steps
+	/*
+		1. Add transactions
+		2. Add validation to models.Book
+		3. If validation fails then rollback the update and report some error to the user
+	*/
+	selectQuery := `
+		SELECT
+			id, title, author_name, author_email, description, category, price, stock
+		FROM
+			books
+		WHERE
+			id = $1
+	`
+
+	var book Book
+
+	// Execute the query and scan the result into the book struct
+	err := c.db.QueryRow(ctx, selectQuery, id).Scan(
+		&book.ID,
+		&book.Title,
+		&book.AuthorName,
+		&book.AuthorEmail,
+		&book.Description,
+		&book.Category,
+		&book.Price,
+		&book.Stock,
+	)
+	if err != nil {
+		return Book{}, fmt.Errorf("unable to fetch book: %w", err)
+	}
+	if updateBook.AuthorName != nil {
+		book.AuthorName = *updateBook.AuthorName
+	}
+	if updateBook.Stock != nil {
+		book.Stock = *updateBook.Stock
+	}
+	if updateBook.Title != nil {
+		book.Title = *updateBook.Title
+	}
+	if updateBook.AuthorName != nil {
+		book.AuthorName = *updateBook.AuthorName
+	}
+	if updateBook.Description != nil {
+		book.Description = *updateBook.Description
+	}
+	if updateBook.Category != nil {
+		book.Category = *updateBook.Category
+	}
+	if updateBook.Price != nil {
+		book.Price = *updateBook.Price
+	}
+
+	query := `
+		UPDATE books
+		SET title = $1, author_name = $2, description = $3, category = $4, 
+		    price = $5, stock = $6
+		WHERE id = $7
+	`
+
+	// Update the book based on its ID
+	_, err = c.db.Exec(ctx, query,
+		book.Title, book.AuthorName, book.Description, book.Category,
+		book.Price, book.Stock, book.ID,
+	)
+
+	if err != nil {
+		return Book{}, fmt.Errorf("unable to update book: %w", err)
+	}
+
+	fmt.Printf("Book with ID %d updated successfully\n", book.ID)
+	return book, nil
+
+}

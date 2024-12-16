@@ -20,3 +20,12 @@ type NewBook struct {
 	Price       float64 `json:"price" validate:"required,gt=0"`                 // Price is required and must be greater than 0
 	Stock       int     `json:"stock" validate:"required,gt=0"`                 // Stock is required and must be greater than 0
 }
+
+type UpdateBook struct {
+	Title       *string  `json:"title"`       // Title of the book
+	AuthorName  *string  `json:"author_name"` // Author name
+	Description *string  `json:"description"` // Description
+	Category    *string  `json:"category"`    // Book category
+	Price       *float64 `json:"price"`       // Book price, must be >= 0
+	Stock       *int     `json:"stock"`       // Number of copies in stock, must be >= 0
+}

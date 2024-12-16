@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"log/slog"
+	"net/http"
 	"time"
 )
 
@@ -15,6 +16,12 @@ const TraceIdKey key = "1"
 func LoggerV0(next gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		next(c)
+	}
+}
+
+func mid(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		next(w, r)
 	}
 }
 

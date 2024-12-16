@@ -19,6 +19,7 @@ func NewConf(c *models.Conn, validate *validator.Validate) *Handler {
 func SetupGINRoutes(c *models.Conn) *gin.Engine {
 	//r := gin.Default()
 	r := gin.New()
+	//applying middleware to all the routes
 	r.Use(gin.Recovery(), middlewares.Logger())
 	slog.Info("Setting up routes")
 	h := NewConf(c, validator.New())

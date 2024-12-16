@@ -13,6 +13,7 @@ func (h *Handler) Ping(c *gin.Context) {
 
 func (h *Handler) CreateBook(c *gin.Context) {
 	traceId := ctxmanage.GetTraceID(c.Request.Context())
+
 	var nb models.NewBook
 	err := c.ShouldBindJSON(&nb)
 	if err != nil {

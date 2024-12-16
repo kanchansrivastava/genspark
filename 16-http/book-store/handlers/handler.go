@@ -1,9 +1,24 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"book-store/models"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+)
 
-func SetupGINRoutes() *gin.Engine {
+type Handler struct {
+	c        *models.Conn
+	validate *validator.Validate
+}
+
+func NewConf(c *models.Conn, validate *validator.Validate) *Handler {
+	return &Handler{c: c, validate: validate}
+}
+func SetupGINRoutes(c *models.Conn) *gin.Engine {
 	r := gin.Default()
-	r.GET("/ping", Ping)
+
+	h := NewConf(c, validator.New())
+	r.GET("/ping", h.Ping)
+	r.POST("/create", h.CreateBook)
 	return r
 }

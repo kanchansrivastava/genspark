@@ -2,6 +2,7 @@ package main
 
 import (
 	"book-store/handlers"
+	"book-store/models"
 	"context"
 	"fmt"
 	"net/http"
@@ -12,6 +13,16 @@ import (
 )
 
 func main() {
+
+	//////////////////////
+	//Starting DB
+	/////////////////////
+
+	c, err := models.NewConn()
+	if err != nil {
+		panic(err)
+	}
+
 	// initialize http service
 	//chi, http.DefaultServeMux, gin
 	api := http.Server{
@@ -19,7 +30,7 @@ func main() {
 		ReadHeaderTimeout: time.Second * 200,
 		WriteTimeout:      time.Second * 200,
 		IdleTimeout:       time.Second * 200,
-		Handler:           handlers.SetupGINRoutes(),
+		Handler:           handlers.SetupGINRoutes(c),
 	}
 
 	// Channel to listen for OS signals (like SIGTERM, SIGINT) for graceful shutdown

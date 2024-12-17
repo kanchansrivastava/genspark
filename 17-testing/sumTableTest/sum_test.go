@@ -12,6 +12,8 @@ import (
 //that would not be part of test so the would not start with the word Test
 
 func TestSumInt(t *testing.T) {
+
+	// table test
 	tt := [...]struct {
 		// always give a name to the test
 		name  string // columns
@@ -37,6 +39,8 @@ func TestSumInt(t *testing.T) {
 	}
 
 	for _, tc := range tt {
+
+		// t.Run creates a subtest with a name defined in the struct
 		t.Run(tc.name, func(t *testing.T) {
 			got := SumInt(tc.input)
 
@@ -44,5 +48,25 @@ func TestSumInt(t *testing.T) {
 			require.Equal(t, tc.want, got)
 		})
 
+	}
+}
+
+func TestSumInt1(t *testing.T) {
+	type args struct {
+		vs []int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SumInt(tt.args.vs); got != tt.want {
+				t.Errorf("SumInt() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

@@ -4,6 +4,8 @@ import "testing"
 
 // to create a test file write _test.go, to signal it is a test file not regular file
 
+// go test ./... -v // run all the test for the project
+
 // So function names must start with word Test to signal it is a test
 // helper functions could be present in this file
 //that would not be part of test so the would not start with the word Test

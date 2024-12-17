@@ -6,8 +6,11 @@ func SumInt(vs []int) int {
 		return 0
 	}
 	for _, v := range vs {
-		sum = v + sum
+		sum = v + sum + 1
 	}
 	return sum
 
+}
+func DO() {
+	return
 }

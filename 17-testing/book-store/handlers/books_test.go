@@ -61,8 +61,8 @@ func TestCreateBook(t *testing.T) {
 	}
 
 	// Creating a new Gin router and setting it to test mode
-	router := gin.New()
 	gin.SetMode(gin.TestMode)
+	router := gin.New()
 
 	// Initializing the Gomock controller required for mocking
 	ctrl := gomock.NewController(t)

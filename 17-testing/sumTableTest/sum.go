@@ -11,6 +11,10 @@ func SumInt(vs []int) int {
 	return sum
 
 }
-func DO() {
-	return
+
+func AppendAMillionElems(vs []int) []int {
+	for i := 0; i < 1000000; i++ {
+		vs = append(vs, i)
+	}
+	return vs
 }

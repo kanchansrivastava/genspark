@@ -28,6 +28,18 @@ func TestCreateBook(t *testing.T) {
 		Stock:       1,
 		Category:    "Fiction",
 	}
+	newBook := models.NewBook{
+		Title:       "Go Programming",
+		AuthorName:  "John Doe",
+		AuthorEmail: "John@doe.com",
+		Description: "Learn Go programming with this book and enhance your skills.",
+		Category:    "Programming",
+		Price:       29.99,
+		Stock:       10,
+	}
+	// we need a traceId in the create book, creating a fake one and putting it in the context
+	traceId := "fake-trace-id"
+	ctx := context.WithValue(context.Background(), middlewares.TraceIdKey, traceId)
 
 	tt := [...]struct {
 		name             string
@@ -53,10 +65,11 @@ func TestCreateBook(t *testing.T) {
 			expectedResponse: `{"id":1,"title":"Go Programming","author_Name":"John Doe","author_email":"John@doe.com","description":"Learn Go programming with this book","category":"Fiction","price":29.99}`,
 			MockStore: func(m *mockmodels.MockService) {
 				// setting the expectations for the mock call
-				m.EXPECT().InsertBook(gomock.Any(), gomock.Any()).Return(mockBook, nil).Times(1)
+				m.EXPECT().InsertBook(gomock.Eq(ctx), gomock.Eq(newBook)).Return(mockBook, nil).Times(1)
 			},
 		},
 		// input
+		// dependencies // it would be setup once for the test function
 		// output
 	}
 
@@ -85,14 +98,13 @@ func TestCreateBook(t *testing.T) {
 			// passing the mockDB to MockStore to set expectation for the mocking calls
 			tc.MockStore(mockDb)
 
-			// we need a traceId in the create book, creating a fake one and putting it in the context
-			traceId := "fake-trace-id"
-			ctx := context.WithValue(context.Background(), middlewares.TraceIdKey, traceId)
-
 			//creating the request with context
 			req := httptest.NewRequestWithContext(ctx, http.MethodPost, "/create", bytes.NewReader(tc.body))
 
+			// creating a rw implementation
 			rec := httptest.NewRecorder()
+
+			// this would call the /create endpoint
 			router.ServeHTTP(rec, req)
 
 			require.Equal(t, tc.expectedStatus, rec.Code)

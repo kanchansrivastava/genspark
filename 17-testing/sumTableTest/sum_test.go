@@ -55,6 +55,7 @@ func TestSumInt(t *testing.T) {
 // Benchmark
 //*******************************************************************//
 
+// go test -run none -bench=BenchmarkAppendAMillionElems
 func BenchmarkSumInt(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		SumInt([]int{1, 2, 3, 4, 5})

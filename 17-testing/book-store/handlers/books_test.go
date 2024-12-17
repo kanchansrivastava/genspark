@@ -16,6 +16,8 @@ import (
 )
 
 func TestCreateBook(t *testing.T) {
+
+	// Mock data representing a book returned by the mocked service
 	mockBook := models.Book{
 		ID:          1,
 		Title:       "Go Programming",
@@ -32,10 +34,12 @@ func TestCreateBook(t *testing.T) {
 		body             []byte // Body to send to the request
 		expectedStatus   int
 		expectedResponse string
-		MockStore        func(m *mockmodels.MockService)
+		//Function to set up the mock behavior // setting expectations
+		MockStore func(m *mockmodels.MockService)
 	}{
 		{
 			name: "OK",
+			// The JSON payload being sent in the request
 			body: []byte(`{
    					 "title": "Go Programming",
    					 "author_name": "John Doe",
@@ -55,16 +59,25 @@ func TestCreateBook(t *testing.T) {
 		// input
 		// output
 	}
+
+	// Creating a new Gin router and setting it to test mode
 	router := gin.New()
 	gin.SetMode(gin.TestMode)
 
+	// Initializing the Gomock controller required for mocking
 	ctrl := gomock.NewController(t)
+
+	// NewMockService would give us the implementation of the
+	// interface that we can set in handlers struct
 	mockDb := mockmodels.NewMockService(ctrl)
 
+	// Creating the handler with the mocked service and validator
 	h := Handler{
-		service:  mockDb,
-		validate: validator.New(),
+		service:  mockDb,          // Passing the mocked service
+		validate: validator.New(), // Initializing the validator for input validation
 	}
+
+	// Registering the CreateBook handler to the POST /create route
 	router.POST("/create", h.CreateBook)
 
 	for _, tc := range tt {

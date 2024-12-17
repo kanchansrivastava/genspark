@@ -39,6 +39,8 @@ func TestSumInt(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			got := SumInt(tc.input)
+
+			// require would fail the current test
 			require.Equal(t, tc.want, got)
 		})
 

@@ -51,22 +51,21 @@ func TestSumInt(t *testing.T) {
 	}
 }
 
-func TestSumInt1(t *testing.T) {
-	type args struct {
-		vs []int
+//*******************************************************************//
+// Benchmark
+//*******************************************************************//
+
+// go test -run none -bench=BenchmarkAppendAMillionElems
+// go test -run none -bench=BenchmarkAppendAMillionElems -benchmem
+func BenchmarkSumInt(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		SumInt([]int{1, 2, 3, 4, 5})
 	}
-	tests := []struct {
-		name string
-		args args
-		want int
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := SumInt(tt.args.vs); got != tt.want {
-				t.Errorf("SumInt() = %v, want %v", got, tt.want)
-			}
-		})
+}
+
+func BenchmarkAppendAMillionElems(b *testing.B) {
+	var a []int = make([]int, 10000000)
+	for i := 0; i < b.N; i++ {
+		a = AppendAMillionElems(a)
 	}
 }

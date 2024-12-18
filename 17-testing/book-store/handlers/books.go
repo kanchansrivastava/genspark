@@ -5,6 +5,7 @@ import (
 	"book-store/pkg/ctxmanage"
 	"github.com/gin-gonic/gin"
 	"log/slog"
+	"net/http"
 	"strconv"
 )
 
@@ -53,7 +54,7 @@ func (h *Handler) CreateBook(c *gin.Context) {
 	}
 
 	slog.Info("Book inserted", slog.String("TRACE ID", traceId))
-	c.JSON(201, book)
+	c.JSON(http.StatusCreated, book)
 }
 
 func (h *Handler) UpdateBookByID(c *gin.Context) {

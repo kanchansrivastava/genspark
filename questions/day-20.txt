@@ -4,3 +4,5 @@ Q1. Create a struct user,
 
     Create a method that calculates total salary for a month for a user
     Write test for it
+
+q2. Write test for book-store or task-management app

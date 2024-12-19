@@ -52,36 +52,64 @@ func main() {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
-
 func CallOrderService(c *gin.Context) {
+	// Step 1: Start a new distributed tracing span using OpenTelemetry.
+	// This span will track the operation of calling the order service,
 	ctx, span := otel.Tracer("user-micro").Start(c.Request.Context(), "CallOrderService")
-	defer span.End()
+	defer span.End() // Ensures that the span ends when the function is done (clean-up step).
 
+	// Step 2: Create a new HTTP client that uses OpenTelemetry instrumentation.
+	// The `otelhttp.NewTransport` wraps the default HTTP transport with tracing instrumentation.
+	// This allows OpenTelemetry to automatically create spans for outgoing HTTP calls.
 	client := &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+
+	// Step 3: Create an HTTP GET request to the external service (Order Service) endpoint.
+	// The context `ctx` contains tracing metadata that will be sent with the request.
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:8089/order", nil)
 	if err != nil {
+		// If constructing the HTTP request fails (e.g., incorrect URL or method), log the error
+		// and respond to the client with a 500 Internal Server Error.
 		log.Printf("Failed to construct request for the order service: %v", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Step 4: Inject trace context metadata into the HTTP request headers.
+	// OpenTelemetry uses this to propagate trace data to the downstream Order Service.
+	// This ensures distributed tracing works seamlessly across multiple services.
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+
+	// Step 5: Execute the HTTP request to the Order Service using the instrumented client.
 	resp, err := client.Do(req)
 	if err != nil {
+		// If there's an error communicating with the Order Service (e.g., server down or network issue),
+		// log the error and respond to the client with a 500 Internal Server Error.
 		log.Printf("Failed to call the order service: %v", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Step 6: Read the response body returned by the Order Service.
+	// The `io.ReadAll` function reads the entire body into memory as a byte slice.
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Failed to call order service: %v", err)
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			gin.H{"error": err.Error()})
+		// If reading the response body fails, log the error and respond with a 500 error to the client.
+		log.Printf("Failed to read response from order service: %v", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Step 7: Set the status of the tracing span to "Ok" to indicate that
+	// the request to the Order Service was successful and the response was processed correctly.
 	span.SetStatus(codes.Ok, "order service response received")
+
+	// Step 8: Log the response received from the external service for debugging or monitoring purposes.
+	// This provides visibility into what the downstream service returned.
 	log.Printf("Order service response: %s", string(b))
+
+	// Step 9: Send the response from the Order Service back to the client.
+	// Respond with HTTP status 200 (OK) if everything is successful.
+	// Use `c.String` to return the response as a plain-text string.
 	c.String(http.StatusOK, string(b))
 }
 

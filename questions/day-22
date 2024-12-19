@@ -1,0 +1,3 @@
+q. From book store call another microservice that print a book has been added in the database
+    and return a response from this new microservice: Book:id logging done
+    Add distributed tracing to this

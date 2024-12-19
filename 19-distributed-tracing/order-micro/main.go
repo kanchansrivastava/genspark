@@ -41,36 +41,61 @@ func main() {
 }
 
 func GetOrder(c *gin.Context) {
-	propogator := otel.GetTextMapPropagator()
-	extractedCtx := propogator.Extract(c.Request.Context(), propagation.HeaderCarrier(c.Request.Header))
+	// Step 1: Retrieve the propagator from OpenTelemetry.
+	// The propagator is responsible for extracting the trace context (trace metadata)
+	// from incoming requests, so the current service can continue the trace.
+	propagator := otel.GetTextMapPropagator()
 
+	// Step 2: Extract the trace context from the incoming request's headers.
+	// This takes the trace-related metadata from the headers (`c.Request.Header`)
+	// and reconstructs the context to continue distributed tracing in this service.
+	extractedCtx := propagator.Extract(c.Request.Context(), propagation.HeaderCarrier(c.Request.Header))
+
+	// Step 3: Print all request headers to the console for debugging purposes.
+	// This might help if something goes wrong with header propagation or trace data.
 	fmt.Printf("viewing headers")
 	for k, v := range c.Request.Header {
-		fmt.Println(k, v)
+		fmt.Println(k, v) // Log each header key and its value(s).
 	}
 
+	// Step 4: Start a new span to trace the "GetOrder Handler" operation.
+	// `ctx` is the context with extracted trace metadata continued from the incoming request.
 	ctx, span := otel.Tracer("order-micro").Start(extractedCtx, "GetOrder Handler")
-	defer span.End()
+	defer span.End() // Ensures that the span is ended when the function exits (clean-up step).
 
+	// Step 5: Simulate the process of fetching the order.
+	// This might involve calling a downstream service or querying a database.
 	err := FetchOrder(ctx)
 	if err != nil {
+		// If an error occurs while fetching the order, do the following:
+		// 1. Mark the span's status as `Error` to indicate a failure.
+		// 2. Add an event to the span about the failure ("order not found").
+		// 3. Set a custom attribute on the span with the failed order ID (if available).
 		span.SetStatus(codes.Error, "order not found")
 		span.AddEvent("order not found")
-		span.SetAttributes(attribute.Int("order.id failed", n))
+		span.SetAttributes(attribute.Int("order.id failed", n)) // `n` seems to represent the order ID.
+
+		// Step 6: Respond to the client with a 404 Not Found error and a JSON payload
+		// including the error message, while also aborting further request processing.
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"error": err.Error()})
+			"error": err.Error(), // Provide the error message for the client.
+		})
 		return
 	}
 
+	// Step 7: If the FetchOrder operation succeeds, mark the span as successful.
+	// Add an attribute to the span indicating the HTTP response code (200 OK).
 	span.SetAttributes(semconv.HTTPResponseStatusCodeKey.Int(http.StatusOK))
-	c.JSON(http.StatusOK, gin.H{
-		"message": "order found",
-	})
 
+	// Step 8: Respond to the client with a 200 OK status and a success message in JSON format.
+	c.JSON(http.StatusOK, gin.H{
+		"message": "order found", // Message indicating success.
+	})
 }
 
 var n = 0
 
+// FetchOrder returns randomly if order is found or not
 func FetchOrder(ctx context.Context) error {
 	n++
 	_, span := otel.Tracer("order-micro").Start(ctx, "FetchOrder")

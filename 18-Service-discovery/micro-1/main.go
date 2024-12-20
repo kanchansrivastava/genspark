@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hashicorp/consul/api"
 	"os"
@@ -22,7 +21,7 @@ func main() {
 		})
 	})
 
-	panic(r.Run(":8089"))
+	panic(r.Run(":80"))
 }
 
 // registerServiceConsul registers the HTTP service with Consul for service discovery.
@@ -31,7 +30,7 @@ func registerServiceConsul() {
 	config := api.DefaultConfig()
 
 	// Set the address of the Consul server. Change this to point to your actual Consul service.
-	config.Address = "http://consul.app:8500"
+	config.Address = "http://consul.diwakarv1:8500"
 
 	// Create a new client to interact with Consul.
 	consul, err := api.NewClient(config)
@@ -58,15 +57,12 @@ func registerServiceConsul() {
 
 	// Assign the hostname (service's address) and port on which this service is running.
 	registration.Address = address
-	registration.Port = 8089
+	registration.Port = 80
 
 	// Register the service with Consul. If this process fails, stop the application.
 	err = consul.Agent().ServiceRegister(registration)
 	if err != nil {
 		panic(err)
 	}
-	err = consul.Agent().ServiceDeregister(fmt.Sprintf("%s-%s", "micro-1-", address))
-	if err != nil {
-		panic(err)
-	}
+
 }

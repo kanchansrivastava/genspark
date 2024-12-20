@@ -35,7 +35,7 @@ func proxyToService(serviceName string, w http.ResponseWriter, r *http.Request) 
 	config := api.DefaultConfig()
 
 	// Setting the address where Consul is running. Change this to point to your actual Consul server.
-	config.Address = "http://consul.app:8500"
+	config.Address = "http://consul.diwakarv1:8500"
 
 	// Create a new client to interact with the Consul API.
 	consul, err := api.NewClient(config)
@@ -89,6 +89,9 @@ func proxyToService(serviceName string, w http.ResponseWriter, r *http.Request) 
 }
 func main() {
 	http.HandleFunc("/", gatewayHandler)
+	http.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte("pong"))
+	})
 	//http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 	//	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, "http://micro-1.app/user/ping", nil)
 	//

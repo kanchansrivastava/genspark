@@ -42,6 +42,22 @@ services:
     networks:
       - web
 
+  publisher:
+    build: ./publisher
+    container_name: publisher
+    depends_on:
+      - kafka-service
+    networks:
+      - web
+
+  subscriber:
+    build: ./subscriber
+    container_name: subscriber
+    depends_on:
+      - kafka-service
+    networks:
+      - web
+
 networks:
   web:
     driver: bridge

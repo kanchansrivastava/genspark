@@ -5,20 +5,33 @@ import (
 	"fmt"
 	"github.com/twmb/franz-go/pkg/kadm"
 	"github.com/twmb/franz-go/pkg/kgo"
+	"time"
 )
 
 func main() {
 	// Set up a new Kafka client
 	seeds := []string{"kafka-service:9092"}
-	client, err := kgo.NewClient(
-		kgo.SeedBrokers(seeds...))
+	var client *kgo.Client
+	var err error
+	for i := 0; i < 5; i++ {
+		client, err = kgo.NewClient(
+			kgo.SeedBrokers(seeds...))
+		if err != nil {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		err = client.Ping(context.Background())
+		if err != nil {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+	}
 	if err != nil {
 		panic(err)
 	}
-
 	defer client.Close()
 	adminClient := kadm.NewClient(client)
-	err = CreatTopic(adminClient, "test")
+	err = CreatTopic(adminClient, "test-new-topic-1")
 	if err != nil {
 		panic(err)
 	}

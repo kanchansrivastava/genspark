@@ -34,9 +34,9 @@ services:
     networks:
       - web
 
-  publisher-service:
-    build: ./publisher
-    container_name: publisher-service
+  admin:
+    build: ./admin
+    container_name: admin
     depends_on:
       - kafka-service
     networks:

@@ -1,3 +1,4 @@
+# micro-1/Dockerfile
 
 # Stage 1: Build the Go application
 FROM golang:1.23.4-alpine3.21 AS builder
@@ -29,7 +30,7 @@ COPY . .
 #RUN go mod tidy
 
 # Build the Go application
-RUN go build -o publisher .
+RUN go build -o admin .
 
 # Stage 2: Create a lightweight runtime image
 FROM alpine:latest
@@ -37,10 +38,9 @@ FROM alpine:latest
 WORKDIR /app
 
 # Copy the compiled binary from the previous stage
-COPY --from=builder /app/publisher .
+COPY --from=builder /app/admin .
 
 
-
-#EXPOSE 80
+EXPOSE 80
 # Command to run the application
-CMD ["./publisher"]
+CMD ["./admin"]

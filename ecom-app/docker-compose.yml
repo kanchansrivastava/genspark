@@ -72,6 +72,18 @@ services:
     networks:
       - web
 
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka-user-service.diwakar
+    environment:
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-user-service.diwakar:9092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    networks:
+      - web
 
 #Containers connected to the same bridge network can communicate with each other
 networks:

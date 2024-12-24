@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log/slog"
@@ -67,17 +68,32 @@ func startApp() error {
 			//------------------------------------------------------//
 	*/
 
-	kafkaConf, err := kafka.NewConf()
+	kafkaConf, err := kafka.NewConf(kafka.TopicAccountCreated, kafka.ConsumerGroup)
 	if err != nil {
 		return err
 	}
-	_ = kafkaConf
+
 	fmt.Println("kafka conf", kafkaConf)
 	fmt.Println("connected to kafka")
+	//------------------------------------------------------//
 
-	// create a topic
-	// write a method in kafka package to create a topic
-	// create a method that produce msg on a given topic
+	/*
+			//------------------------------------------------------//
+		                Consuming Kafka topics
+			//------------------------------------------------------//
+	*/
+
+	go func() {
+		ch := make(chan kafka.ConsumeResult)
+		go kafkaConf.ConsumeMessage(context.Background(), ch)
+		for v := range ch {
+			fmt.Printf("Consumed message: %s\n", string(v.Record.Value))
+			var event kafka.MSGUserServiceAccountCreated
+			json.Unmarshal(v.Record.Value, &event)
+			fmt.Printf("Successfully received the event : %+v\n", event)
+		}
+
+	}()
 
 	/*
 
@@ -96,7 +112,7 @@ func startApp() error {
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
 		//handlers.API returns gin.Engine which implements Handler Interface
-		Handler: handlers.API(u),
+		Handler: handlers.API(u, kafkaConf),
 	}
 	serverErrors := make(chan error)
 	go func() {

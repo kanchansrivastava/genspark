@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
+	"user-service/internal/stores/kafka"
 	"user-service/internal/users"
 	"user-service/pkg/ctxmanage"
 	"user-service/pkg/logkey"
@@ -52,6 +54,21 @@ func (h *Handler) Signup(c *gin.Context) {
 		return
 	}
 
+	go func() {
+		data, err := json.Marshal(user)
+		if err != nil {
+			slog.Error("error in marshaling user", slog.String(logkey.TraceID, traceId),
+				slog.String(logkey.ERROR, err.Error()))
+			return
+		}
+		key := []byte(user.ID)
+		err = h.k.ProduceMessage(kafka.TopicAccountCreated, key, data)
+		if err != nil {
+			slog.Error("error in producing message", slog.String(logkey.TraceID, traceId),
+				slog.String(logkey.ERROR, err.Error()))
+			return
+		}
+	}()
 	c.JSON(http.StatusOK, user)
 
 }

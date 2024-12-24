@@ -3,18 +3,17 @@ package kafka
 import (
 	"context"
 	"fmt"
-	"github.com/twmb/franz-go/pkg/kadm"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"os"
 	"time"
 )
 
 type Conf struct {
-	client *kgo.Client
-	admin  *kadm.Client
+	client   *kgo.Client
+	consumer *kgo.Client
 }
 
-func NewConf() (*Conf, error) {
+func NewConf(topic, ConsumerGroup string) (*Conf, error) {
 	host := os.Getenv("KAFKA_HOST")
 	port := os.Getenv("KAFKA_PORT")
 
@@ -29,10 +28,10 @@ func NewConf() (*Conf, error) {
 		var backoff time.Duration = 2
 		client, err = kgo.NewClient(
 			kgo.SeedBrokers(connString),
-
 			//ProducerLinger sets how long individual topic partitions will linger waiting for more records
 			//before triggering a request to be built.
 			kgo.ProducerLinger(0),
+			kgo.AllowAutoTopicCreation(),
 		)
 		if err != nil {
 			fmt.Printf("kafka client error: %v", err)
@@ -57,9 +56,16 @@ func NewConf() (*Conf, error) {
 	if err != nil {
 		return nil, fmt.Errorf("kafka client error: %v", err)
 	}
-	admin := kadm.NewClient(client)
+	consumer, err := kgo.NewClient(
+		kgo.SeedBrokers(connString),
+		kgo.ConsumeTopics(topic),
+		kgo.ConsumerGroup(ConsumerGroup),
+		kgo.FetchMinBytes(1),
+		kgo.FetchMaxWait(10*time.Millisecond),
+	)
+
 	return &Conf{
-		client: client,
-		admin:  admin,
+		client:   client,
+		consumer: consumer,
 	}, nil
 }

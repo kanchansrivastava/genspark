@@ -11,6 +11,9 @@ import (
 	"syscall"
 	"time"
 	"user-service/handlers"
+	"user-service/internal/stores/kafka"
+	"user-service/internal/stores/postgres"
+	"user-service/internal/users"
 )
 
 func main() {
@@ -28,6 +31,54 @@ func main() {
 }
 
 func startApp() error {
+
+	/*
+			//------------------------------------------------------//
+		                Setting up DB & Migrating tables
+			//------------------------------------------------------//
+	*/
+
+	slog.Info("Migrating tables for user-service if not already done")
+	db, err := postgres.OpenDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	err = postgres.RunMigrations(db)
+	if err != nil {
+		return err
+	}
+	//------------------------------------------------------//
+
+	/*
+		//------------------------------------------------------//
+		//    Setting up users package config
+		//------------------------------------------------------//
+	*/
+	u, err := users.NewConf(db)
+	if err != nil {
+		return err
+	}
+	//------------------------------------------------------//
+
+	/*
+			//------------------------------------------------------//
+		                Setting up Kafka & Creating topics
+			//------------------------------------------------------//
+	*/
+
+	kafkaConf, err := kafka.NewConf()
+	if err != nil {
+		return err
+	}
+	_ = kafkaConf
+	fmt.Println("kafka conf", kafkaConf)
+	fmt.Println("connected to kafka")
+
+	// create a topic
+	// write a method in kafka package to create a topic
+	// create a method that produce msg on a given topic
+
 	/*
 
 			//------------------------------------------------------//
@@ -45,7 +96,7 @@ func startApp() error {
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
 		//handlers.API returns gin.Engine which implements Handler Interface
-		Handler: handlers.API(),
+		Handler: handlers.API(u),
 	}
 	serverErrors := make(chan error)
 	go func() {

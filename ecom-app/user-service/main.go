@@ -83,16 +83,32 @@ func startApp() error {
 			//------------------------------------------------------//
 	*/
 
+	// Start a goroutine to handle Kafka message consumption
 	go func() {
+		// Create a channel to receive messages of type `kafka.ConsumeResult`
 		ch := make(chan kafka.ConsumeResult)
+
+		// Start a goroutine to consume messages from Kafka
+		// This function `ConsumeMessage` does the work of fetching messages from a Kafka topic
+		// and pushing them into the `ch` channel.
 		go kafkaConf.ConsumeMessage(context.Background(), ch)
+
+		// Iterate over the channel `ch` to process messages as they are received
+		// The loop continues until the application stops
 		for v := range ch {
+			//  message that has been consumed from Kafka
 			fmt.Printf("Consumed message: %s\n", string(v.Record.Value))
+
+			// Declare a variable of type `kafka.MSGUserServiceAccountCreated` to unmarshal the message body
 			var event kafka.MSGUserServiceAccountCreated
+
+			// Unmarshal the JSON message into the `event` struct.
+			// This converts the Kafka JSON message (v.Record.Value) into a Go struct to make it easier to work with.
 			json.Unmarshal(v.Record.Value, &event)
+
+			// Log/Print the event data after successfully unmarshaling
 			fmt.Printf("Successfully received the event : %+v\n", event)
 		}
-
 	}()
 
 	/*

@@ -7,6 +7,8 @@ const (
 	ConsumerGroup       = `user-service`
 )
 
+// Representation of event that we would get in kafka
+
 type MSGUserServiceAccountCreated struct {
 	ID        string    `json:"id"` // UUID
 	Name      string    `json:"name"`

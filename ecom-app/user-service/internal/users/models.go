@@ -12,3 +12,10 @@ type User struct {
 	CreatedAt        time.Time `json:"created_at"` // Timestamp of creation
 	UpdatedAt        time.Time `json:"updated_at"` // Timestamp of last update
 }
+
+// NewUser struct represents the data required when creating a new user
+type NewUser struct {
+	Name     string `json:"name" validate:"required,min=2,max=100"` // User name must be between 2-100 chars
+	Email    string `json:"email" validate:"required,email"`        // Valid email required
+	Password string `json:"password" validate:"required,min=5"`     // Password must be at least 5 characters long
+}

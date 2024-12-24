@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"os"
+	"user-service/internal/stores/kafka"
 	"user-service/internal/users"
 	"user-service/middleware"
 )
@@ -11,23 +12,25 @@ import (
 type Handler struct {
 	u        *users.Conf
 	validate *validator.Validate
+	k        *kafka.Conf
 }
 
-func NewHandler(u *users.Conf) *Handler {
+func NewHandler(u *users.Conf, k *kafka.Conf) *Handler {
 	return &Handler{
 		u:        u,
+		k:        k,
 		validate: validator.New(),
 	}
 }
 
-func API(u *users.Conf) *gin.Engine {
+func API(u *users.Conf, k *kafka.Conf) *gin.Engine {
 	r := gin.New()
 	mode := os.Getenv("GIN_MODE")
 	if mode == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	h := NewHandler(u)
+	h := NewHandler(u, k)
 
 	prefix := os.Getenv("SERVICE_ENDPOINT_PREFIX")
 	if prefix == "" {

@@ -4,3 +4,4 @@ goose create -s create_table sql
 
 export GOOSE_DBSTRING="user=postgres dbname=postgres password=postgres host=localhost port=5433 sslmode=disable"
 goose postgres up
+goose postgres down

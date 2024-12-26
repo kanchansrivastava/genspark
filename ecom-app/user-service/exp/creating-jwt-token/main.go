@@ -3,10 +3,17 @@ package main
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"os"
 	"time"
 )
 
 func main() {
+	privateKeyPem, err := os.ReadFile("private.pem")
+	if err != nil {
+		panic(err)
+	}
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyPem)
+
 	// iss (issuer): Issuer of the JWT
 	// sub (subject): Subject of the JWT (the users)
 	// aud (audience): Recipient for which the JWT is intended
@@ -30,5 +37,6 @@ func main() {
 	//SigningMethodRSA implements the RSA family of signing methods.
 	//Expects *rsa.PrivateKey for signing and *rsa.PublicKey for validation
 	tkn := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	fmt.Println(tkn)
+	str, err := tkn.SignedString(privateKey)
+	fmt.Println(str)
 }

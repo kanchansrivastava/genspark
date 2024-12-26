@@ -108,6 +108,13 @@ func startApp() error {
 
 			// Log/Print the event data after successfully unmarshaling
 			fmt.Printf("Successfully received the event : %+v\n", event)
+			err := u.CreateCustomerStripe(context.Background(), event.ID, event.Name, event.Email)
+			if err != nil {
+				slog.Error("error creating customer", slog.Any("error", err))
+				continue
+			}
+			slog.Info("customer created successfully on stripe")
+
 		}
 	}()
 

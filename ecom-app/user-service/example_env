@@ -10,3 +10,6 @@ SERVICE_ENDPOINT_PREFIX=users
 
 KAFKA_HOST=kafka-user-service.diwakar
 KAFKA_PORT=9092
+
+
+STRIPE_TEST_KEY=

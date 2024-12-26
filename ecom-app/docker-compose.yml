@@ -49,7 +49,7 @@ services:
     ports:
       - "5433:5432"
     volumes: #setting the data directory in the project
-      - ./project/user-postgres/postgres/:/var/lib/postgresql/data/
+      - ./project-db/user-postgres/postgres/:/var/lib/postgresql/data/
     networks:
       - web
 

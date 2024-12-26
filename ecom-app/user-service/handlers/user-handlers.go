@@ -116,3 +116,8 @@ func (h *Handler) Signup(c *gin.Context) {
 	// Respond with HTTP 200 OK and return the created user's data as JSON.
 	c.JSON(http.StatusOK, user)
 }
+
+/*
+	when a user logs in, create a token for the user if login is a success
+	and return the token back to the client
+*/

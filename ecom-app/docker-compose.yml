@@ -30,7 +30,7 @@ services:
 
   user-service.diwakar:
     build: ./user-service
-#    container_name: user-service
+    container_name: user-service
     depends_on:
       - consul.diwakar
     networks:

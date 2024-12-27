@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
@@ -121,3 +123,74 @@ func (h *Handler) Signup(c *gin.Context) {
 	when a user logs in, create a token for the user if login is a success
 	and return the token back to the client
 */
+
+func (h *Handler) Login(c *gin.Context) {
+
+	// Get the trace ID from the request for debugging/tracking
+	traceId := ctxmanage.GetTraceIdOfRequest(c)
+
+	// Declare a struct to hold the login request payload
+	var loginPayload struct {
+		Email    string `json:"email" validate:"required,email"` // Email must be valid and required
+		Password string `json:"password" validate:"required"`    // Password required
+	}
+
+	// Bind the JSON request body into loginPayload struct
+	err := c.ShouldBindJSON(&loginPayload)
+
+	// Check if JSON bind resulted in errors
+	if err != nil {
+		// Log the JSON bind error
+		slog.Error("JSON validation error", slog.String(logkey.TraceID, traceId),
+			slog.String(logkey.ERROR, err.Error()))
+
+		// Respond with a Bad Request error
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password"})
+		return
+	}
+
+	// Validate the loginPayload fields
+	err = h.validate.Struct(loginPayload)
+
+	// Check if validation failed
+	if err != nil {
+
+		// Log generic validation failure
+		slog.Error("Validation failed", slog.String(logkey.TraceID, traceId),
+			slog.String(logkey.ERROR, err.Error()))
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password"})
+		return
+	}
+
+	// Proceed to authenticate the user by verifying credentials
+	userData, claims, err := h.u.Authenticate(c.Request.Context(), loginPayload.Email, loginPayload.Password)
+
+	// Check if authentication failed
+	if err != nil {
+		slog.Error("Authentication failed", slog.String(logkey.TraceID, traceId), slog.String(logkey.ERROR, err.Error()))
+
+		// For incorrect credentials, send an unauthorized error
+		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, users.ErrInvalidPassword) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+			return
+		}
+
+		// If another error occurred, respond with an internal server error
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	token, err := h.a.GenerateToken(claims)
+	if err != nil {
+		slog.Error("Error in generating token", slog.String(logkey.TraceID, traceId), slog.String(logkey.ERROR, err.Error()))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	// If login is successful, return the user data in the response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"user":    userData,
+		"token":   token,
+	})
+}

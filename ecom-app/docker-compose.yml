@@ -31,8 +31,6 @@ services:
   user-service.diwakar:
     build: ./user-service
     container_name: user-service
-    ports:
-      - "8083:80"
     depends_on:
       - consul.diwakar
     networks:

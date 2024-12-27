@@ -14,6 +14,7 @@ import (
 	"time"
 	"user-service/handlers"
 	"user-service/internal/auth"
+	"user-service/internal/consul"
 	"user-service/internal/stores/kafka"
 	"user-service/internal/stores/postgres"
 	"user-service/internal/users"
@@ -177,6 +178,19 @@ func startApp() error {
 
 	/*
 			//------------------------------------------------------//
+		               Registering with Consul
+			//------------------------------------------------------//
+	*/
+
+	consulClient, regId, err := consul.RegisterWithConsul()
+	defer consulClient.Agent().ServiceDeregister(regId)
+	//
+	if err != nil {
+		return err
+	}
+
+	/*
+			//------------------------------------------------------//
 		               Listening for error signals
 			//------------------------------------------------------//
 	*/
@@ -187,13 +201,14 @@ func startApp() error {
 	case err := <-serverErrors:
 		return fmt.Errorf("server error %w", err)
 	case <-shutdown:
+
 		fmt.Println("Shutting down server gracefully")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		//Shutdown gracefully shuts down the server without interrupting any active connections.
 		//Shutdown works by first closing all open listeners, then closing all idle connections,
-		err := api.Shutdown(ctx)
+		err = api.Shutdown(ctx)
 		if err != nil {
 
 			//forceful closure

@@ -1,15 +1,17 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
 	"strings"
+	"user-service/internal/auth"
 	"user-service/pkg/logkey"
 )
 
-func Authentication() gin.HandlerFunc {
+func (m *Mid) Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// We get the current request context
 		ctx := c.Request.Context()
@@ -35,10 +37,23 @@ func Authentication() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
+		claims, err := m.a.ValidateToken(parts[1])
+		if err != nil {
+			slog.Error("Unauthorized User",
+				slog.Any(logkey.ERROR, err),
+				slog.Any(logkey.TraceID, traceId),
+			)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": http.StatusText(http.StatusUnauthorized)})
+			return
+		}
 
+		ctx = context.WithValue(ctx, auth.ClaimsKey, claims)
+		c.Request = c.Request.WithContext(ctx)
 		// Call the validate token from auth struct
 		//put the validated claims in context
 		// do the next thing in the chain
+
+		c.Next()
 
 	}
 }

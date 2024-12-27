@@ -183,11 +183,11 @@ func startApp() error {
 	*/
 
 	consulClient, regId, err := consul.RegisterWithConsul()
-	defer consulClient.Agent().ServiceDeregister(regId)
-	//
 	if err != nil {
 		return err
 	}
+
+	defer consulClient.Agent().ServiceDeregister(regId)
 
 	/*
 			//------------------------------------------------------//

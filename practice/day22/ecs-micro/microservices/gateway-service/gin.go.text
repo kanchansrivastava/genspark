@@ -1,0 +1,89 @@
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"github.com/gin-gonic/gin"
+	"github.com/hashicorp/consul/api"
+)
+
+var routeMap = map[string]string{
+	"/greet/user/":      "hello-service",
+	"/greet/health-check": "hello-service",
+	"/user/register/":   "user-service",
+	"/user/health-check": "user-service",
+}
+
+func gatewayHandler(c *gin.Context) {
+	path := c.Request.URL.Path
+	fmt.Printf("Request received for: %s\n", path)
+
+	serviceName, ok := routeMap[path]
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "service not found"})
+		return
+	}
+
+	proxyToService(serviceName, c)
+}
+
+func proxyToService(serviceName string, c *gin.Context) {
+	config := api.DefaultConfig()
+	config.Address = "http://consul.kanchan-microservices:8500"
+
+	// Create a new Consul client
+	consul, err := api.NewClient(config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Query Consul for the service with the given name
+	services, _, err := consul.Health().Service(serviceName, "", true, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(services) == 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No healthy instances of service found"})
+		return
+	}
+
+	// Select the first available healthy service instance
+	service := services[0]
+	serviceAddress := fmt.Sprintf("http://%s:%d%s", service.Service.Address, service.Service.Port, c.Request.URL.Path)
+
+	// Make a proxy request to the selected service instance
+	resp, err := http.Get(serviceAddress)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(resp.StatusCode)
+	c.Writer.Write(body)
+}
+
+func main() {
+	r := gin.Default()
+
+	r.Any("/*path", gatewayHandler)
+
+	r.GET("/health-check", func(c *gin.Context) {
+		c.String(http.StatusOK, "Gateway Service health check working !!")
+	})
+
+	if err := r.Run(":80"); err != nil {
+		panic(err)
+	}
+}

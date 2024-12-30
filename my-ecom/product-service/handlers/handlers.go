@@ -3,17 +3,20 @@ package handlers
 import (
 	"product-service/internal/products"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"os"
 	"net/http"
 )
 
 type Handler struct {
 	p *products.Conf
+	validate *validator.Validate
 }
 
 func NewHandler(p *products.Conf) *Handler {
 	return &Handler{
 		p: p,
+		validate: validator.New(),
 	}
 }
 
@@ -23,9 +26,17 @@ func API(p *products.Conf) *gin.Engine{
 	if mode == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	// h := NewHandler(p)
+	h := NewHandler(p)
+	prefix := os.Getenv("SERVICE_ENDPOINT_PREFIX")
+	if prefix == "" {
+		panic("SERVICE_ENDPOINT_PREFIX is not set")
+	}
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ping successful"})
 	})
+	v1 := r.Group(prefix)
+	{
+		v1.POST("/create-product", h.CreateProduct)
+	}
 	return r
 }

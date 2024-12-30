@@ -9,7 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"product-service/handlers"
-	"product-service/internal/consul"
+	// "product-service/internal/consul"
 	"product-service/internal/products"
 	"product-service/internal/stores/postgres"
 	"syscall"
@@ -37,16 +37,16 @@ func main() {
 		panic(err)
 	}
 
-	consulClient, regId, err := consul.RegisterWithConsul()
-	if err != nil {
-		slog.Error("Failed to register with Consul", slog.Any("error", err))
-		panic(err)
-	}
-	defer func() {
-		if err := consulClient.Agent().ServiceDeregister(regId); err != nil {
-			slog.Error("Failed to deregister from Consul", slog.Any("error", err))
-		}
-	}()
+	// consulClient, regId, err := consul.RegisterWithConsul()
+	// if err != nil {
+	// 	slog.Error("Failed to register with Consul", slog.Any("error", err))
+	// 	panic(err)
+	// }
+	// defer func() {
+	// 	if err := consulClient.Agent().ServiceDeregister(regId); err != nil {
+	// 		slog.Error("Failed to deregister from Consul", slog.Any("error", err))
+	// 	}
+	// }()
 
 	setUpServer(p)
 }

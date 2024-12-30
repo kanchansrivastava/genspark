@@ -5,20 +5,15 @@ import (
 	"log/slog"
 	"net/http"
 	"product-service/internal/products"
-	"product-service/pkg/ctxmanage"
 	"product-service/pkg/logkey"
-
 	"github.com/gin-gonic/gin"
 )
 
-
 func (h *Handler) CreateProduct(c *gin.Context) {
 	fmt.Println("CreateProduct Handler called!!")
-	traceId := ctxmanage.GetTraceIdOfRequest(c)
 
 	if c.Request.ContentLength > 5*1024 {
 		slog.Error("request body limit breached",
-			slog.String(logkey.TraceID, traceId),
 			slog.Int64("Size Received", c.Request.ContentLength),
 		)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -30,7 +25,6 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 	var newProduct products.NewProduct
 	if err := c.ShouldBindJSON(&newProduct); err != nil {
 		slog.Error("json validation error",
-			slog.String(logkey.TraceID, traceId),
 			slog.String(logkey.ERROR, err.Error()),
 		)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -41,7 +35,6 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 
 	if err := h.validate.Struct(newProduct); err != nil {
 		slog.Error("validation failed",
-			slog.String(logkey.TraceID, traceId),
 			slog.String(logkey.ERROR, err.Error()),
 		)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -53,7 +46,6 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 	err := newProduct.ValidatePrice()
 	if err != nil {
 		slog.Error("price validation failed",
-			slog.String(logkey.TraceID, traceId),
 			slog.String(logkey.ERROR, err.Error()),
 		)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -61,12 +53,12 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		})
 		return
 	}
+
 	ctx := c.Request.Context()
 
 	product, err := h.p.InsertProduct(ctx, newProduct)
 	if err != nil {
 		slog.Error("error in creating the product",
-			slog.String(logkey.TraceID, traceId),
 			slog.String(logkey.ERROR, err.Error()),
 		)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -74,6 +66,19 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		})
 		return
 	}
+	err = h.p.CreateProductStripe(ctx, product.ID, product.Name, product.Description, product.Price)
+	if err != nil {
+		slog.Error("Error creating product on Stripe",
+			slog.String(logkey.ERROR, err.Error()),
+		)
+		return
+	}
+
+	slog.Info("Product created successfully on Stripe")
+
+	// go func() {
+		
+	// }()
 
 	c.JSON(http.StatusOK, product)
 }

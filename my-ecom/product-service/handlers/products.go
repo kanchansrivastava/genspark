@@ -50,6 +50,17 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		return
 	}
 
+	err := newProduct.ValidatePrice()
+	if err != nil {
+		slog.Error("price validation failed",
+			slog.String(logkey.TraceID, traceId),
+			slog.String(logkey.ERROR, err.Error()),
+		)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "please provide valid price in INR",
+		})
+		return
+	}
 	ctx := c.Request.Context()
 
 	product, err := h.p.InsertProduct(ctx, newProduct)

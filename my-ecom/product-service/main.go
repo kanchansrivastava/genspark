@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -9,12 +10,11 @@ import (
 	"os"
 	"os/signal"
 	"product-service/handlers"
-	// "product-service/internal/consul"
+	"product-service/internal/consul"
 	"product-service/internal/products"
 	"product-service/internal/stores/postgres"
 	"syscall"
 	"time"
-	"context"
 )
 
 func main() {
@@ -37,16 +37,16 @@ func main() {
 		panic(err)
 	}
 
-	// consulClient, regId, err := consul.RegisterWithConsul()
-	// if err != nil {
-	// 	slog.Error("Failed to register with Consul", slog.Any("error", err))
-	// 	panic(err)
-	// }
-	// defer func() {
-	// 	if err := consulClient.Agent().ServiceDeregister(regId); err != nil {
-	// 		slog.Error("Failed to deregister from Consul", slog.Any("error", err))
-	// 	}
-	// }()
+	consulClient, regId, err := consul.RegisterWithConsul()
+	if err != nil {
+		slog.Error("Failed to register with Consul", slog.Any("error", err))
+		panic(err)
+	}
+	defer func() {
+		if err := consulClient.Agent().ServiceDeregister(regId); err != nil {
+			slog.Error("Failed to deregister from Consul", slog.Any("error", err))
+		}
+	}()
 
 	setUpServer(p)
 }
@@ -107,7 +107,6 @@ func setUpServer(p *products.Conf) error {
 	}
 	return nil
 }
-
 
 func setupSlog() {
 	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{

@@ -1,26 +1,26 @@
 package handlers
 
 import (
-	"product-service/internal/products"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"os"
 	"net/http"
+	"os"
+	"product-service/internal/products"
 )
 
 type Handler struct {
-	p *products.Conf
+	p        *products.Conf
 	validate *validator.Validate
 }
 
 func NewHandler(p *products.Conf) *Handler {
 	return &Handler{
-		p: p,
+		p:        p,
 		validate: validator.New(),
 	}
 }
 
-func API(p *products.Conf) *gin.Engine{
+func API(p *products.Conf) *gin.Engine {
 	r := gin.New()
 	mode := os.Getenv("GIN_MODE")
 	if mode == "release" {

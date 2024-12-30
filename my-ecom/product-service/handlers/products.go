@@ -3,14 +3,14 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 	"product-service/internal/products"
 	"product-service/pkg/ctxmanage"
 	"product-service/pkg/logkey"
 	"time"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 func (h *Handler) CreateProduct(c *gin.Context) {

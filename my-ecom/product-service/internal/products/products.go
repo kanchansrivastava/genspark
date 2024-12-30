@@ -1,10 +1,10 @@
 package products
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"context"
 	"github.com/google/uuid"
 	"time"
 )

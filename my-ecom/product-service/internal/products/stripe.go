@@ -6,8 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 	"strconv"
+	"time"
+
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/price"
 	"github.com/stripe/stripe-go/v81/product"
@@ -41,20 +42,21 @@ func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, descrip
 				Active:      stripe.Bool(true),
 			}
 			productResult, err := product.New(params)
+			if err != nil {
+				return fmt.Errorf("failed to create Stripe product: %w", err)
+			}
 			stripeProductID := productResult.ID
 			priceParams := &stripe.PriceParams{
-				Currency: stripe.String(string(stripe.CurrencyINR)), 
-				UnitAmount: stripe.Int64(amount),  
-				Product: stripe.String(stripeProductID),
+				Currency:   stripe.String(string(stripe.CurrencyINR)),
+				UnitAmount: stripe.Int64(amount),
+				Product:    stripe.String(stripeProductID),
 			}
 
 			priceResult, err := price.New(priceParams)
-			
+
 			if err != nil {
 				return fmt.Errorf("failed to create Stripe price: %w", err)
 			}
-			fmt.Println("priceresult id", priceResult.ID, priceResult.Product)
-
 			insertQuery := `
 				INSERT INTO product_pricing_stripe (
 					product_id, 
@@ -68,8 +70,7 @@ func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, descrip
 			`
 			createdAt := time.Now().UTC()
 			updatedAt := createdAt
-
-			_, err = tx.ExecContext(ctx, insertQuery, productId, priceResult.Product, priceResult.ID, amount, createdAt, updatedAt)
+			_, err = tx.ExecContext(ctx, insertQuery, productId, priceResult.Product.ID, priceResult.ID, amount, createdAt, updatedAt)
 			if err != nil {
 				return fmt.Errorf("failed to insert product into database: %w", err)
 			}

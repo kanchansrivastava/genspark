@@ -50,6 +50,44 @@ func (c *Conf) InsertProduct(ctx context.Context, newProduct NewProduct) (Produc
 	return product, nil
 }
 
+
+func (c *Conf) GetPriceAndStock(ctx context.Context, productID string) (string, int, error) {
+	var priceID string
+	var stock int
+
+	err := c.withTx(ctx, func(tx *sql.Tx) error {
+		query := `
+			SELECT 
+				pps.price_id, 
+				p.stock
+			FROM 
+				product_pricing_stripe pps
+			INNER JOIN 
+				products p
+			ON 
+				pps.product_id = p.id
+			WHERE 
+				p.id = $1;
+		`
+
+		err := tx.QueryRowContext(ctx, query, productID).Scan(&priceID, &stock)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return fmt.Errorf("no product found for productID: %s", productID)
+			}
+			return fmt.Errorf("failed to fetch priceID and stock: %w", err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return "", 0, err
+	}
+
+	return priceID, stock, nil
+}
+
+
 func (c *Conf) withTx(ctx context.Context, fn func(*sql.Tx) error) error {
 	// Start a new transaction using the context.
 	tx, err := c.db.BeginTx(ctx, nil)

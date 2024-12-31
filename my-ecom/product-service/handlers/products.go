@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 	"product-service/internal/products"
 	"product-service/pkg/ctxmanage"
 	"product-service/pkg/logkey"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func (h *Handler) CreateProduct(c *gin.Context) {
@@ -107,5 +110,38 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		"status":  "success",
 		"message": "Product created successfully",
 		"product": product,
+	})
+}
+
+func (h *Handler) GetProductByID(c *gin.Context) {
+	productID := c.Param("productID")
+	if productID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "productID is required",
+		})
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	priceID, stock, err := h.p.GetPriceAndStock(ctx, productID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":   "product not found",
+				"message": fmt.Sprintf("No product found with productID: %s", productID),
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "internal server error",
+				"message": "An error occurred while fetching the product details",
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"stock":   stock,
+		"priceID": priceID,
 	})
 }

@@ -37,6 +37,7 @@ func API(p *products.Conf) *gin.Engine {
 	v1 := r.Group(prefix)
 	{
 		v1.POST("/create-product", h.CreateProduct)
+		v1.GET("/stock/:productID", h.GetProductByID)
 	}
 	return r
 }

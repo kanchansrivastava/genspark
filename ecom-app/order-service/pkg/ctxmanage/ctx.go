@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"log/slog"
-	"user-service/internal/auth"
-	"user-service/middleware"
+	"order-service/internal/auth"
+	"order-service/middleware"
 )
 
 func GetTraceIdOfRequest(c *gin.Context) string {

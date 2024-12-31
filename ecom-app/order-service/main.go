@@ -103,7 +103,7 @@ func startApp() error {
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
 
-		Handler: handlers.API(prefix, a),
+		Handler: handlers.API(prefix, a, consulClient),
 	}
 	serverErrors := make(chan error)
 	go func() {

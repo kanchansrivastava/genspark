@@ -96,3 +96,34 @@ func (h *handler) CreateProduct(c *gin.Context) {
 	// Respond with the inserted product
 	c.JSON(http.StatusOK, insertedProduct)
 }
+
+func (h *handler) ProductStockAndStripePriceId(c *gin.Context) {
+
+	// Get the traceId from the request for tracking logs
+	traceId := ctxmanage.GetTraceIdOfRequest(c)
+
+	// Extract the product ID from the URL parameters
+	productID := c.Param("productID")
+	if productID == "" {
+		slog.Error("missing product id", slog.String(logkey.TraceID, traceId))
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Product ID is required"})
+		return
+	}
+
+	// Call GetProductStockAndPrice to retrieve stock and price for the product
+	stock, priceID, err := h.Conf.GetProductStockAndStripePriceId(c.Request.Context(), productID)
+	if err != nil {
+		// Log the error
+		slog.Error("error in fetching product stock and price", slog.String(logkey.TraceID, traceId),
+			slog.String(logkey.ERROR, err.Error()), slog.String("ProductID", productID))
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Failed to retrieve product stock and price"})
+		return
+	}
+
+	// Log the success operation
+	slog.Info("successfully retrieved product stock and price", slog.String("Trace ID", traceId), slog.String("ProductID", productID), slog.Int("Stock", stock), slog.String("PriceID", priceID))
+
+	// Respond with the stock and price
+	c.JSON(http.StatusOK, gin.H{"product_id": productID, "stock": stock, "price_id": priceID})
+}

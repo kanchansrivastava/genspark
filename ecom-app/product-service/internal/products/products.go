@@ -255,3 +255,46 @@ func (c *Conf) CreateProductPriceStripe(product Product) error {
 
 	return nil
 }
+
+func (c *Conf) GetProductStockAndStripePriceId(ctx context.Context, productID string) (int, string, error) {
+	// Variables to store stock and price_id
+	var stock int
+	var priceID string
+
+	// Execute the query within a transaction
+	err := c.withTx(ctx, func(tx *sql.Tx) error {
+		// SQL query to get the stock and price for the given product ID
+		query := `
+		SELECT 
+			p.stock, 
+			pp.price_id
+		FROM 
+			products p
+		JOIN 
+			product_pricing_stripe pp
+		ON 
+			p.id = pp.product_id
+		WHERE 
+			p.id = $1
+		`
+
+		// Execute the query inside the transaction
+		row := tx.QueryRowContext(ctx, query, productID)
+		err := row.Scan(&stock, &priceID)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return fmt.Errorf("no product found with id: %s", productID)
+			}
+			return fmt.Errorf("failed to query database: %w", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return 0, "", fmt.Errorf("failed to fetch product stock and price: %w", err)
+	}
+
+	// Return the stock and priceID
+	return stock, priceID, nil
+}

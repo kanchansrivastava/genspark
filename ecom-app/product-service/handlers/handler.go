@@ -29,6 +29,7 @@ func API(p products.Conf, endpointPrefix string) *gin.Engine {
 	{
 		v1.Use(middleware.Logger())
 		v1.POST("/create", h.CreateProduct)
+		v1.GET("/stock/:productID", h.ProductStockAndStripePriceId)
 
 	}
 

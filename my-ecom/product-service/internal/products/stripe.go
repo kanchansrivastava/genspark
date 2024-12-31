@@ -6,15 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
-
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/price"
 	"github.com/stripe/stripe-go/v81/product"
 )
 
-func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, description string, productPrice string) error {
+func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, description string, productPrice uint) error {
 	sKey := os.Getenv("STRIPE_TEST_KEY")
 	if sKey == "" {
 		return fmt.Errorf("STRIPE_TEST_KEY not set")
@@ -23,7 +21,7 @@ func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, descrip
 	stripe.Key = sKey
 
 	err := c.withTx(ctx, func(tx *sql.Tx) error {
-		sqlQuery := `SELECT stripe_product_id FROM product_pricing_stripe WHERE stripe_product_id = $1`
+		sqlQuery := `SELECT stripe_product_id FROM product_pricing_stripe WHERE product_id = $1`
 		var stripeProductId string
 
 		err := tx.QueryRowContext(ctx, sqlQuery, productId).Scan(&stripeProductId)
@@ -32,10 +30,6 @@ func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, descrip
 				return fmt.Errorf("failed to fetch Stripe product ID: %w", err)
 			}
 
-			amount, err := strconv.ParseInt(productPrice, 10, 64)
-			if err != nil {
-				return fmt.Errorf("invalid price value: %w", err)
-			}
 			params := &stripe.ProductParams{
 				Name:        stripe.String(name),
 				Description: stripe.String(description),
@@ -48,7 +42,7 @@ func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, descrip
 			stripeProductID := productResult.ID
 			priceParams := &stripe.PriceParams{
 				Currency:   stripe.String(string(stripe.CurrencyINR)),
-				UnitAmount: stripe.Int64(amount),
+				UnitAmount: stripe.Int64(int64(productPrice)),
 				Product:    stripe.String(stripeProductID),
 			}
 
@@ -70,7 +64,7 @@ func (c *Conf) CreateProductStripe(ctx context.Context, productId, name, descrip
 			`
 			createdAt := time.Now().UTC()
 			updatedAt := createdAt
-			_, err = tx.ExecContext(ctx, insertQuery, productId, priceResult.Product.ID, priceResult.ID, amount, createdAt, updatedAt)
+			_, err = tx.ExecContext(ctx, insertQuery, productId, priceResult.Product.ID, priceResult.ID, productPrice , createdAt, updatedAt)
 			if err != nil {
 				return fmt.Errorf("failed to insert product into database: %w", err)
 			}

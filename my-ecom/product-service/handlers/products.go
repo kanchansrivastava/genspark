@@ -56,7 +56,7 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	err := newProduct.ValidatePrice()
+	paisaPrice, err := products.ValidatePrice(newProduct.Price)
 	if err != nil {
 		slog.Error("price validation failed",
 			slog.String(logkey.TraceID, traceId),
@@ -88,7 +88,7 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		err = h.p.CreateProductStripe(ctx, product.ID, product.Name, product.Description, product.Price)
+		err = h.p.CreateProductStripe(ctx, product.ID, product.Name, product.Description, paisaPrice)
 		if err != nil {
 			slog.Error("Error creating product on Stripe",
 				slog.String(logkey.TraceID, traceId),

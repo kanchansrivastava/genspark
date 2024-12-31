@@ -1,9 +1,6 @@
 package products
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -34,46 +31,4 @@ type StripeProductPricing struct {
 	Price           uint64    `json:"price"`
 	CreatedAt       time.Time `json:"created_at"` // Timestamp when the record was created
 	UpdatedAt       time.Time `json:"updated_at"` // Timestamp when the record was last updated
-}
-
-func (p *NewProduct) ValidatePrice() error {
-	price := strings.TrimSpace(p.Price)
-	parts := strings.Split(price, ".")
-	if len(parts) > 2 {
-		return fmt.Errorf("invalid price format: too many parts")
-	}
-
-	rsPart := parts[0]
-	if len(rsPart) == 0 || !isUint(rsPart) {
-		return fmt.Errorf("invalid rupee part: must be a valid positive integer")
-	}
-
-	rupee, _ := strconv.Atoi(rsPart)
-	if rupee < 100 || rupee > 1000000 {
-		return fmt.Errorf("rupee part must be between 100 and 1,000,000")
-	}
-
-	paisaPart := "00"
-	if len(parts) == 2 {
-		paisaPart = parts[1]
-		if !isUint(paisaPart) || len(paisaPart) > 2 {
-			return fmt.Errorf("invalid paisa part: must be a valid number with at most two digits")
-		}
-		if len(paisaPart) == 1 {
-			paisaPart = "0" + paisaPart
-		}
-	}
-
-	// Calculate the final price in paisa (rupee * 100 + paisa)
-	paisa, _ := strconv.Atoi(paisaPart)
-	finalPrice := rupee*100 + paisa
-
-	p.Price = strconv.Itoa(finalPrice)
-
-	return nil
-}
-
-func isUint(value string) bool {
-	_, err := strconv.Atoi(value)
-	return err == nil
 }

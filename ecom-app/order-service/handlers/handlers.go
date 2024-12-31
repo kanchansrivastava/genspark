@@ -10,10 +10,6 @@ import (
 type Handler struct {
 }
 
-func (h Handler) Checkout(context *gin.Context) {
-
-}
-
 func NewHandler() *Handler {
 	return &Handler{}
 }

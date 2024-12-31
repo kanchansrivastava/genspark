@@ -85,6 +85,38 @@ services:
     networks:
       - web
 
+
+  # Product Service Containers
+  #######################################
+
+  product-service.diwakar:
+    build: ./product-service
+    container_name: product-service
+    #    ports:
+    #      - "8081:80"
+    depends_on:
+      - consul.diwakar
+      - product-postgres
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+    networks:
+      - web
+
+  product-postgres:
+    image: postgres:16.3-alpine
+    container_name: product-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - web
+#######################################
+#docker compose up --build -d --scale user-service=3 // note we cant provide a name to container in this case
+
 #Containers connected to the same bridge network can communicate with each other
 networks:
   web:

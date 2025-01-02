@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.24.0
+	github.com/stripe/stripe-go/v81 v81.2.0
 )
 
 require (

@@ -81,6 +81,7 @@ services:
       - kafka-user-service.diwakar
     environment:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-user-service.diwakar:9092
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: kafka-order-service.diwakar:9092
       DYNAMIC_CONFIG_ENABLED: 'true'
     networks:
       - web
@@ -102,7 +103,7 @@ services:
     networks:
       - web
 
-  product-postgres:
+  product-postgres.diwakar:
     image: postgres:16.3-alpine
     container_name: product-postgres
     restart: always
@@ -130,7 +131,7 @@ services:
     networks:
       - web
 
-  order-postgres:
+  order-postgres.diwakar:
     image: postgres:16.3-alpine
     container_name: order-postgres
     restart: always
@@ -143,7 +144,7 @@ services:
     networks:
       - web
 
-  kafka-order-service:
+  kafka-order-service.diwakar:
     image: apache/kafka:3.9.0
     container_name: kafka-order-service
     ports:

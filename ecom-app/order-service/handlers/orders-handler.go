@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
-	"order-service/consul"
+	"order-service/internal/consul"
 	"order-service/pkg/ctxmanage"
 	"order-service/pkg/logkey"
 	"time"
@@ -59,7 +59,7 @@ func (h Handler) Checkout(c *gin.Context) {
 		}
 		httpQuery := fmt.Sprintf("http://%s:%d/users/stripe", address, port)
 		slog.Info("httpQuery: "+httpQuery, slog.String(logkey.TraceID, traceId))
-		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 50*time.Second)
 		defer cancel()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, httpQuery, nil)
 		if err != nil {

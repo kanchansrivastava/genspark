@@ -35,9 +35,11 @@ func API(endpointPrefix string, k *auth.Keys, client *consulapi.Client) *gin.Eng
 	r.GET("/ping", HealthCheck)
 	v1 := r.Group(endpointPrefix)
 	{
+		v1.POST("/webhook", h.Webhook)
 		v1.Use(m.Authentication())
 		v1.POST("/checkout/:productID", h.Checkout)
 		v1.GET("/ping", HealthCheck)
+
 	}
 
 	return r

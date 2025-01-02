@@ -10,6 +10,8 @@ import (
 	"order-service/handlers"
 	"order-service/internal/auth"
 	"order-service/internal/consul"
+	"order-service/internal/orders"
+	"order-service/internal/stores/kafka"
 	postgres "order-service/internal/stores/postgres/migrations"
 	"os"
 	"os/signal"
@@ -48,6 +50,16 @@ func startApp() error {
 
 	/*
 		//------------------------------------------------------//
+		//    Setting up orders package config
+		//------------------------------------------------------//
+	*/
+	o, err := orders.NewConf(db)
+	if err != nil {
+		return err
+	}
+
+	/*
+		//------------------------------------------------------//
 		//  Setting up Auth layer
 		//------------------------------------------------------//
 	*/
@@ -67,6 +79,21 @@ func startApp() error {
 	if err != nil {
 		return fmt.Errorf("initializing auth %w", err)
 	}
+
+	/*
+			//------------------------------------------------------//
+		                Setting up Kafka & Creating topics
+			//------------------------------------------------------//
+	*/
+
+	kafkaConf, err := kafka.NewConf(kafka.TopicOrderPaid, kafka.ConsumerGroup)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("kafka conf", kafkaConf)
+	fmt.Println("connected to kafka")
+	//------------------------------------------------------//
 
 	/*
 			//------------------------------------------------------//
@@ -103,7 +130,7 @@ func startApp() error {
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
 
-		Handler: handlers.API(prefix, a, consulClient),
+		Handler: handlers.API(prefix, a, consulClient, &o, kafkaConf),
 	}
 	serverErrors := make(chan error)
 	go func() {

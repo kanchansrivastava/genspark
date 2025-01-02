@@ -109,7 +109,7 @@ func (h *Handler) Checkout(c *gin.Context) {
 			productChan <- ProductServiceResponse{}
 			return
 		}
-		httpQuery := fmt.Sprintf("http://%s:%d/product/stock/%s", address, port, productID)
+		httpQuery := fmt.Sprintf("http://%s:%d/products/stock/%s", address, port, productID)
 		resp, err := http.Get(httpQuery)
 		if err != nil {
 			slog.Error("error fetching product service", slog.String(logkey.TraceID, traceId))
@@ -191,6 +191,91 @@ func (h *Handler) Checkout(c *gin.Context) {
 	// Log success operation
 	slog.Info("successfully initiated Stripe checkout session", slog.String("Trace ID", traceId), slog.String("ProductID", productID), slog.String("CheckoutSessionID", sessionStripe.ID))
 
+	userId := claims.Subject
+	ctx := c.Request.Context()
+	err = h.o.CreateOrder(ctx, orderId, userId, productID, sessionStripe.AmountTotal)
+	if err != nil {
+		slog.Error("error creating order", slog.String(logkey.TraceID, traceId), slog.String(logkey.ERROR, err.Error()))
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Failed to create order"})
+		return
+	}
+
 	// Respond with the Stripe session ID
 	c.JSON(http.StatusOK, gin.H{"checkout_session_id": sessionStripe.URL})
 }
+
+/*
+*
+                  +---------------------+
+                  |       START         |
+                  |   API Call Starts   |
+                  +---------------------+
+                            |
+                            v
+                +----------------------+
+                |   Check STRIPE Key   |
+                | (Environment Config) |
+                +----------------------+
+                            |
+           STRIPE Key FOUND | STRIPE Key MISSING
+                  |                   v
+                  v       +----------------------------+
+    +------------------+  | Respond with Error:         |
+    | Extract User     |  | "Stripe test key not found" |
+    | Claims & TraceID |  +----------------------------+
+    +------------------+
+                  |
+                  v
+          +-------------------+
+          | Extract ProductID |
+          |   From Request    |
+          +-------------------+
+                  |
+        ProductID FOUND | ProductID MISSING
+                  |                   v
+                  v       +--------------------------------+
+    +----------------------------------+| Respond with Error: |
+    | Create Channels for Concurrent  || "Product ID Missing"|
+    |     Service Calls               |+--------------------------------+
+    +----------------------------------+
+                  |
+                  v
+   +---------------------------------------+
+   | Start Parallel Service Calls          |
+   | 1. Call User Service (Stripe ID)      |
+   | 2. Call Product Service (Stock/Price) |
+   +---------------------------------------+
+                  |
+          +-------------------+  +-------------------+
+          | Wait for User ID  |  | Wait for Product   |
+          +-------------------+  | Details            |
+                  |               +-------------------+
+       Stripe ID FOUND |   Product Details FOUND
+                  |                    |
+                  v                    v
+       +---------------------------------------+
+       | Validate Results:                    |
+       | - Valid Stripe Customer ID           |
+       | - Valid Product Details (Stock > 0,  |
+       |   PriceID Exists)                    |
+       +---------------------------------------+
+                  |
+          Validation PASSED | Validation FAILED
+                  |                   	v
+                  v      				----------------------------+
+       +----------------------------+ 	Respond with Error    |
+       | Create Stripe Checkout     | 	"Invalid Inputs"      |
+       | Session with User & Product|	-----------------------+
+       +----------------------------+
+                  |// Create the order in the orders table with a pending status
+                  v
+     +--------------------------------+
+     |  Respond with Checkout URL     |
+     |  (Stripe Session Created)      |
+     +--------------------------------+
+                  |
+                  v
+           +-------------+
+           |     END     |
+           +-------------+
+*/

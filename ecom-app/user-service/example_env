@@ -14,5 +14,3 @@ CONSUL_HTTP_ADDRESS=http://consul.diwakar:8500
 
 KAFKA_HOST=kafka-user-service.diwakar
 KAFKA_PORT=9092
-
-STRIPE_TEST_KEY=

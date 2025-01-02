@@ -209,6 +209,7 @@ func (c *Conf) CreateProductPriceStripe(product Product) error {
 				UnitAmount: stripe.Int64(int64(paisa)),                // Set price in smallest currency units (e.g., cents for USD)
 				ProductData: &stripe.PriceProductDataParams{
 					Name: stripe.String(product.Name), // Name of the product
+
 					//UnitLabel: stripe.String("1"),
 				},
 			}

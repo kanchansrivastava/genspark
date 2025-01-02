@@ -4,19 +4,27 @@ import (
 	"github.com/gin-gonic/gin"
 	consulapi "github.com/hashicorp/consul/api"
 	"order-service/internal/auth"
+	"order-service/internal/orders"
+	"order-service/internal/stores/kafka"
 	"order-service/middleware"
 	"os"
 )
 
 type Handler struct {
 	client *consulapi.Client
+	o      *orders.Conf
+	k      *kafka.Conf
 }
 
-func NewHandler(client *consulapi.Client) *Handler {
-	return &Handler{client: client}
+func NewHandler(client *consulapi.Client, o *orders.Conf, k *kafka.Conf) *Handler {
+	return &Handler{
+		client: client,
+		o:      o,
+		k:      k,
+	}
 }
 
-func API(endpointPrefix string, k *auth.Keys, client *consulapi.Client) *gin.Engine {
+func API(endpointPrefix string, k *auth.Keys, client *consulapi.Client, o *orders.Conf, kafkaConf *kafka.Conf) *gin.Engine {
 	r := gin.New()
 	mode := os.Getenv("GIN_MODE")
 	if mode == gin.ReleaseMode {
@@ -29,7 +37,7 @@ func API(endpointPrefix string, k *auth.Keys, client *consulapi.Client) *gin.Eng
 		panic(err)
 	}
 
-	h := NewHandler(client)
+	h := NewHandler(client, o, kafkaConf)
 	r.Use(middleware.Logger(), gin.Recovery())
 
 	r.GET("/ping", HealthCheck)

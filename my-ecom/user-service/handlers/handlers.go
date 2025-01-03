@@ -64,6 +64,8 @@ func API(u *users.Conf, a *auth.Keys, k *kafka.Conf) *gin.Engine {
 			}
 			c.JSON(200, gin.H{"Auth Check": "You are authenticated " + claims.Subject})
 		})
+		v1.GET("/stripe", h.GetStripeDetails)
+
 	}
 	return r
 }

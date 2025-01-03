@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
-	"database/sql"
+	"encoding/json"
+	"product-service/internal/consul"
+	"product-service/internal/stores/kafka"
+
 	"fmt"
 	"github.com/joho/godotenv"
 	"log/slog"
@@ -10,7 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"product-service/handlers"
-	"product-service/internal/consul"
+
 	"product-service/internal/products"
 	"product-service/internal/stores/postgres"
 	"syscall"
@@ -18,100 +21,148 @@ import (
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(".env"); err != nil {
-		panic("Error loading .env file")
-	}
 	setupSlog()
-
-	db, err := setUpDB()
+	err := godotenv.Load()
 	if err != nil {
-		slog.Error("Failed to set up database", slog.Any("error", err))
 		panic(err)
+	}
+	err = startApp()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func startApp() error {
+
+	/*
+			//------------------------------------------------------//
+		                Setting up DB & Migrating tables
+			//------------------------------------------------------//
+	*/
+
+	slog.Info("Migrating tables for product-service if not already done")
+	db, err := postgres.OpenDB()
+	if err != nil {
+		return err
 	}
 	defer db.Close()
-
+	err = postgres.RunMigration(db)
+	if err != nil {
+		return err
+	}
+	/*
+		//------------------------------------------------------//
+		//    Setting up product package config
+		//------------------------------------------------------//
+	*/
 	p, err := products.NewConf(db)
 	if err != nil {
-		slog.Error("Failed to create products configuration", slog.Any("error", err))
-		panic(err)
+		return err
 	}
 
-	consulClient, regId, err := consul.RegisterWithConsul()
-	if err != nil {
-		slog.Error("Failed to register with Consul", slog.Any("error", err))
-		panic(err)
-	}
-	defer func() {
-		if err := consulClient.Agent().ServiceDeregister(regId); err != nil {
-			slog.Error("Failed to deregister from Consul", slog.Any("error", err))
+	/*
+		/*
+			//------------------------------------------------------//
+			//   Consuming Kafka TOPICS [ORDER SERVICE EVENTS]
+			//------------------------------------------------------//
+	*/
+	go func() {
+		ch := make(chan kafka.ConsumeResult)
+		go kafka.ConsumeMessage(context.Background(), kafka.TopicOrderPaid, kafka.ConsumerGroup, ch)
+		for v := range ch {
+			if v.Err != nil {
+				fmt.Println(v.Err)
+				continue
+			}
+			fmt.Printf("Consumed message: %s", string(v.Record.Value))
+			var event kafka.OrderPaidEvent
+			json.Unmarshal(v.Record.Value, &event)
+			// create a method over internal/products to decrement the stock value by quantity
+			fmt.Println("decrement the stock of the product")
+			fmt.Println("successfully decremented the stock of the product")
+
 		}
 	}()
 
-	setUpServer(p)
-}
-
-func setUpDB() (*sql.DB, error) {
-	db, err := postgres.OpenDB()
-	if err != nil {
-		return nil, err
-	}
-	if err := postgres.RunMigrations(db); err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
-func setUpServer(p *products.Conf) error {
-	port := os.Getenv("PORT")
+	/*
+			//------------------------------------------------------//
+		                Setting up http Server
+			//------------------------------------------------------//
+	*/
+	// Initialize http service
+	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "80"
 	}
-
+	prefix := os.Getenv("SERVICE_ENDPOINT_PREFIX")
+	if prefix == "" {
+		return fmt.Errorf("SERVICE_ENDPOINT_PREFIX env variable is not set")
+	}
 	api := http.Server{
 		Addr:         ":" + port,
 		ReadTimeout:  8000 * time.Second,
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
-		Handler:      handlers.API(p),
+		//handlers.API returns gin.Engine which implements Handler Interface
+		Handler: handlers.API(p, prefix),
 	}
 
+	// channel to store any errors while setting up the service
 	serverErrors := make(chan error, 1)
 	go func() {
 		serverErrors <- api.ListenAndServe()
 	}()
 
-	// Graceful shutdown setup
+	/*
+			//------------------------------------------------------//
+		               Registering with Consul
+			//------------------------------------------------------//
+	*/
+
+	consulClient, regId, err := consul.RegisterWithConsul()
+	if err != nil {
+		return err
+	}
+
+	defer consulClient.Agent().ServiceDeregister(regId)
+
+	/*
+			//------------------------------------------------------//
+		               Listening for error signals
+			//------------------------------------------------------//
+	*/
+	//shutdown channel intercepts ctrl+c signals
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM, os.Kill)
-
 	select {
 	case err := <-serverErrors:
-		return fmt.Errorf("server error: %w", err)
+		return fmt.Errorf("server error %w", err)
 	case <-shutdown:
-		fmt.Println("Shutting down server gracefully")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		fmt.Println("de-registering from consul", err)
+		fmt.Println("graceful shutdown")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-
-		// Attempt graceful shutdown
-		if err := api.Shutdown(ctx); err != nil {
-			fmt.Println("Graceful shutdown failed, forcing shutdown")
-
-			// Attempt forceful shutdown
-			if closeErr := api.Close(); closeErr != nil {
-				return fmt.Errorf("could not stop server gracefully or forcefully: %w", closeErr)
+		//Shutdown gracefully shuts down the server without interrupting any active connections.
+		//Shutdown works by first closing all open listeners, then closing all idle connections,
+		err := api.Shutdown(ctx)
+		if err != nil {
+			err := api.Close()
+			if err != nil {
+				return fmt.Errorf("could not stop server gracefully %w", err)
 			}
-
-			return fmt.Errorf("could not stop server gracefully: %w", err)
 		}
 	}
 	return nil
+
 }
 
 func setupSlog() {
 	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		//AddSource: true: This will cause the source file and line number of the log message to be included in the output
 		AddSource: true,
 	})
+
 	logger := slog.New(logHandler)
+	//SetDefault makes l the default Logger. in our case we would be doing structured logging
 	slog.SetDefault(logger)
 }

@@ -3,16 +3,20 @@ package consul
 import (
 	"fmt"
 	consulapi "github.com/hashicorp/consul/api"
+	"os"
 	"time"
 )
 
 func CreateConnection() (*consulapi.Client, error) {
 	// Create a default configuration object for the Consul client.
 	config := consulapi.DefaultConfig()
-
+	consulAddress := os.Getenv("CONSUL_HTTP_ADDRESS")
+	if consulAddress == "" {
+		return nil, fmt.Errorf("consul address not found")
+	}
 	// Set the Consul server URL in the configuration.
 	// This is where the Consul client will attempt to connect for service discovery or KV operations.
-	config.Address = "http://consul.diwakar:8500"
+	config.Address = consulAddress
 
 	// Record the current time. This will be used to enforce a timeout of 10 minutes for the connection attempt.
 	t := time.Now()

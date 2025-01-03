@@ -21,13 +21,12 @@ func NewHandler(client *consulapi.Client) *Handler {
 }
 
 func (h *Handler) APIGateway(c *gin.Context) {
-	fmt.Println("request received for ", c.Param("path"))
 	// Retrieve the placeholder value for "path" from the request's URL.
 	// For example, if the request is `/api/users/create/123`, the `path` would be `users/create/123`.
 	fullPath := c.Param("path") // give full path /users/create/123
-
+	// or c.Request.URL.Path // fetch the endpoint
 	// Split the URL path into segments using "/" as the delimiter.
-	// For example, "users/create/123" becomes ["users", "create", "123"].
+
 	segments := strings.Split(fullPath, "/")
 
 	var serviceEndpoint string
